@@ -61,6 +61,12 @@ var pageAdaptationTablet = {
     "main-1":{"xpath":["none"],"pattern":"none"},
     "footer-0":{"xpath":["none"],"pattern":"none"}
 };
+var pageAdaptationMaterial = {
+	"header-0":{"xpath":["none"],"pattern":"none"},
+	"navigation-0":{"xpath":["none"],"pattern":"none"},
+	"main-0":{"xpath":["none"],"pattern":"none"},
+	"footer-0":{"xpath":["none"],"pattern":"none"}
+};
 var pageAdaptation = {};
 
 var elements = "body, html, tr, td, th, thead, tbody, li, li a";	//Todos los elementos que no se tomaran en cuenta para exportara
@@ -93,7 +99,7 @@ initializeEdition();
 //-----------------------------------------------------------
 
 // Funcion que se encarga de configurar la edicion del sitio Web con la herramienta
-function initializeEdition() {	
+function initializeEdition() {
 	$(window).load(function(){
 		stopEdit();
 	});
@@ -177,7 +183,7 @@ function armarXpath(selectedElement){
 				find = true;
 			}
 			pos = pos + 1;
-		}  
+		}
 		xPath = "/"+tag+"["+(position + 1)+"]"+xPath;
 		element = element.parent(); 	// Se guarda al padre
 		tag = $(element).get(0).tagName;
@@ -216,7 +222,7 @@ function sizeModal(cloned){
 	}
 	else{
 		clonedTop = 100;
-		$(element).height(winH - $(menu).height() - 200); 
+		$(element).height(winH - $(menu).height() - 200);
 		$(element).css({overflow: "scroll"});
 	}
 	var clonedLeft;
@@ -266,7 +272,7 @@ function frameElement(){
 		$(this).css({"background-color":"#95BB93", "border-style":"solid", "border-color":"#175414", "border-width":"2px"});
 	}
 	else{
-		$(this).css({"background-color":"rgba(255, 255, 255, 0.3)", "border-style":"solid", "border-color":"#175414"}); 
+		$(this).css({"background-color":"rgba(255, 255, 255, 0.3)", "border-style":"solid", "border-color":"#175414"});
 	}
 
 	getOriginalStyles($("*[aryta-hovered='aryta-hovered']").not(this));
@@ -356,7 +362,7 @@ function openModal(highlightElement){
 	$("#div-aryta-cloned").append(clonedElement);
 	createMenuButton(highlightElement);
 
-	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños. 
+	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños.
 	//Se separo porque no tomaba bien los tamaños en caso de que se tenga un margen automatico.
 
 	stylesModal($("#div-aryta-cloned")); // ID del div que contiene al clon y a los botones
@@ -373,7 +379,7 @@ function openModal(highlightElement){
 	$("#backgroundModal").fadeTo(400, 0.7);
 	$("#backgroundModal").height(altura);
 
-	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal. 
+	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
 	$("#backgroundModal").on("click", function(){closeModal($("[id='div-aryta-cloned']"));});
 }
 
@@ -391,6 +397,10 @@ function openModalInsertElement(){
 		selectTemplateHeaderCommon();
 		selectTablet(true);
 	}
+	else if ("material" === pageTemplate) {
+		selectTemplateHeaderCommon();
+		selectMaterial(true);
+	}
 	markSelected();
 }
 
@@ -400,8 +410,8 @@ function markSelected(){
 		if (pageAdaptation[key]["xpath"] != "none") {
 			var markElement = "table-" + key;
 			$("#"+markElement+"").css("background-color","#abbfdd");
-			$("#"+markElement+"").off("mouseleave");
-			$("#"+markElement+"").off("mouseenter");
+			$("#"+markElement+"").on("mouseleave", function(){$(this).css({"background-color":"#abbfdd","cursor":"default"});});
+			$("#"+markElement+"").on("mouseenter", function(){$(this).css({"background-color":"#9cb8dd","cursor":"pointer"});});
 			$("#"+markElement+"").off("click");
 			$("#"+markElement+"").on("click", replaceElement);
 		}
@@ -484,7 +494,7 @@ function deframeElementButton(){
 function identificationOfTheElement(seleccionado, referencia){
 	// Se verifica mediante el identificador si es el elemento padre o algunos de los hijos.
 	switch($(seleccionado).attr("identity")){
-	case "father": 
+	case "father":
 		return $("[selected_Aryta='on']:eq(0)").parent();
 	default:
 		var index = $(seleccionado).attr("identity");
@@ -492,8 +502,8 @@ function identificationOfTheElement(seleccionado, referencia){
 	if(referencia == "original"){
 		$("[buttonAryta='original']").removeAttr("buttonAryta");
 	}
-	return $(element); 
-	} 
+	return $(element);
+	}
 }
 
 // Funcion que agrega agrega manejadores de eventos al boton activo
@@ -535,13 +545,13 @@ function createFatherButton(){
 	if (!$("*[selected_Aryta*=on]:eq(0)").parent().is('body')){
 		$("#BackgroundMenuButton").append("<input id= 'fatherButton'/>");
 		$("#fatherButton").attr("type", "button").attr("value", "Padre").attr("identity", "father").css("margin-button", "0.5%");
-		element_button_click = "#fatherButton";   
+		element_button_click = "#fatherButton";
 	}
 }
 
 // Funcion que se encarga de crear el/los boton/es hijo/s del elemento seleccionado
 function createChildrenButton(){
-	// Se extraen los hijos del elemento seleccionado 
+	// Se extraen los hijos del elemento seleccionado
 	var children = $("[selected_Aryta='on']:eq(0)").children().not(unwelcome_element).not(":hidden").not(":empty");
 	var children_clone = $("#aryta-cloned").children().not(unwelcome_element).not(":hidden").not(":empty");
 	var button_name; // Para el TagName del elemento. Se le agrega al value del boton.
@@ -605,7 +615,7 @@ function selectorFamily(element , var_elemento, attribute){
 		$(element).attr(""+ attribute + "", "on");
 
 		// Necesario saber si el elemento a identificar es parte del clon.
-		if(attribute == "selected_Aryta_cloned"){   
+		if(attribute == "selected_Aryta_cloned"){
 			element = identificationOfTheElement($(element),"clone");
 		}
 		var_elemento.removeAttr(""+ attribute + "");
@@ -666,7 +676,7 @@ function keysNavigation(event){
 			}
 			return selectorFamily($(element).parent(), element, attribute);
 		}
-		break;      
+		break;
 	case 40: // Abajo - Se seleccionara al primer hijo del elemento actual. Esta funcion solamente estara habilitado con el modal desactivado.
 		if(!modal_activated){
 			return selectorFamily($(element).children().first(), element,  attribute);
@@ -746,7 +756,28 @@ function exportJson() {
 		alert("No hay elementos seleccionados para exportar.");
 	}
 	else {
-		prompt("Exportar configuración. Presione Ctrl+C para copiar los datos:", JSON.stringify(siteAdaptation));
+				var adaptation = prompt("Exportar configuración. Presione Ctrl+C para copiar los datos o Aceptar para hacerlo automáticamente:", JSON.stringify(siteAdaptation));
+		if (adaptation) {
+			var dummy = document.createElement("input");
+
+			// Add it to the document
+			document.body.appendChild(dummy);
+
+			// Set its ID
+			dummy.setAttribute("id", "dummy_id");
+
+			// Output the array into it
+			document.getElementById("dummy_id").value=adaptation;
+
+			// Select it
+			dummy.select();
+
+			// Copy its contents
+			document.execCommand("copy");
+
+			// Remove it as its not needed anymore
+			document.body.removeChild(dummy);
+		}
 	}
 }
 
@@ -852,7 +883,7 @@ function concatElement(element){
 	$.each( element, function( key, value ) {
 		if (value != "none"){
 			getElement = getElements(value);
-			if(getElement != null){    	 
+			if(getElement != null){
 				stringElements += "<div>"+getElement.innerHTML+"</div>";
 			}
 			else
@@ -881,7 +912,7 @@ function constructObject(obj){
 		}
 		else
 			object[key] = {"xpath":elem,"pattern":value["pattern"]};
-	});  
+	});
 	if (error == true){
 		alert(message);
 		return null;
@@ -900,6 +931,7 @@ function selectTemplate(){
 			"<option value='generic'>Genérico</option> " +
 			"<option value='mobilePhone'>Celular</option> " +
 			"<option value='tablet'>Tablet</option> " +
+			"<option value='material'>Material Design</option> " +
 	"</select></form>");
 	selectGeneric();
 	$("#selectedOptionTemplate").change(function(){
@@ -917,6 +949,11 @@ function selectTemplate(){
 			$("#div-templateTable").remove();
 			$("#templateTable").remove();
 			selectTablet(false);
+		}
+		else if ("material" === $(this).val()) {
+			$("#div-templateTable").remove();
+			$("#templateTable").remove();
+			selectMaterial(false);
 		}
 	});
 	$("#col31").append("<hr/><br/>&nbsp;<b>URL: </b>" +
@@ -943,6 +980,10 @@ function selectTemplate(){
 		else if ("tablet" === $("#selectedOptionTemplate").val()) {
 			pageAdaptation =  pageAdaptationTablet;
 			pageTemplate = "tablet";
+		}
+		else if ("material" === $("#selectedOptionTemplate").val()) {
+			pageAdaptation =  pageAdaptationMaterial;
+			pageTemplate = "material";
 		}
 		if ($("#optionUrl1").is(':checked')) {
 			urlCompareType = 'equal';
@@ -1022,7 +1063,7 @@ function selectTemplateCommon(){
 	$(".contenedor-fila").css({"display":"table-row", "border-style": "groove", "border":"1px solid black"});
 	$(".contenedor-columna").css({"display":"table-cell", "border-style": "groove", "border":"1px solid black"});
 
-	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños. 
+	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños.
 	//Se separo porque no tomaba bien los tamaños en caso de que se tenga un margen automatico.
 
 	stylesModal($("#div-aryta-cloned")); // ID del div que contiene al clon y a los botones
@@ -1038,12 +1079,12 @@ function selectTemplateCommon(){
 	$("#backgroundModal").fadeTo(400, 0.7);
 	$("#backgroundModal").height(altura);
 
-	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal. 
+	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
 	$("#backgroundModal").on("click", function(){closeModal($("[id='div-aryta-cloned']"));});
 
 	//Se habilita la funcion de poder seleccionar un lugar en el template.
-	$("[templateSelectable]").on("mouseenter", function(){$(this).css("background-color","#F0F8FF");});
-	$("[templateSelectable]").on("mouseleave", function(){$(this).css("background-color","white");});
+	$("[templateSelectable]").on("mouseenter", function(){$(this).css({"background-color":"#F0F8FF","cursor":"pointer"});});
+	$("[templateSelectable]").on("mouseleave", function(){$(this).css({"background-color":"white","cursor":"default"});});
 	$("[templateSelectable]").on("click", addElement_template);
 }
 
@@ -1059,7 +1100,7 @@ function selectMobilePhone(isSelected){
 	$("#div-templateTable").append("<div id='templateTable' class='contenedor-tabla'></div>");
 	$("#templateTable").append("<div id='table-header-0' class='contenedor-fila' style='height:50px;' templateSelectable='header-0'>&nbsp;Header</div>");
     $("#templateTable").append("<div id='table-navigation-0' class='contenedor-fila' style='height:50px;' templateSelectable='navigation-0'>&nbsp;Navigation</div>");
-	$("#templateTable").append("<div id='table-main-0' class='contenedor-fila' templateSelectable='main-0'>&nbsp;Main</div>");	
+	$("#templateTable").append("<div id='table-main-0' class='contenedor-fila' templateSelectable='main-0'>&nbsp;Main</div>");
 	$("#templateTable").append("<div id='table-footer-0' class='contenedor-fila' style='height:50px;' templateSelectable='footer-0'>&nbsp;Footer</div>");
 
 	$(".contenedor-tabla").css({"display":"table","border-style": "groove", "height": "250px", "width": "180px", "border-collapse": "collapse", "border-width": "1px"});
@@ -1078,13 +1119,32 @@ function selectTablet(isSelected){
 	$("#div-templateTable").append("<div id='templateTable' class='contenedor-tabla'></div>");
 	$("#templateTable").append("<div id='table-header-0' class='contenedor-fila' style='height:40px;' templateSelectable='header-0'>&nbsp;Header</div>");
     $("#templateTable").append("<div id='table-navigation-0' class='contenedor-fila' style='height:40px;' templateSelectable='navigation-0'>&nbsp;Navigation</div>");
-	$("#templateTable").append("<div id='table-main' class='contenedor-fila'></div>"); 
+	$("#templateTable").append("<div id='table-main' class='contenedor-fila'></div>");
 	$("#templateTable").append("<div id='table-footer-0' class='contenedor-fila' style='height:40px;' templateSelectable='footer-0'>&nbsp;Footer</div>");
 
 	$("#table-main").append("<div id='table-main-0' class='contenedor-columna' style='width:50%' templateSelectable='main-0'>&nbsp;Main 0</div>");
 	$("#table-main").append("<div id='table-main-1' class='contenedor-columna' style='width:50%' templateSelectable='main-1'>&nbsp;Main 1</div>");
 
 	$(".contenedor-tabla").css({"display":"table","border-style": "groove", "height": "190px", "width": "260px", "border-collapse": "collapse", "border-width": "1px"});
+	selectTemplateCommon();
+}
+
+// Funcion para el template Tablet
+function selectMaterial(isSelected){
+	if (isSelected) {
+		selectPatter();
+	}
+	else {
+		$("#col22").append("<div id='div-templateTable'></div>");
+	}
+	$("#div-templateTable").css({"display": "inline-block", "margin-left": "30px", "margin-right": "30px", "text-align":"left", "vertical-align":"middle"});
+	$("#div-templateTable").append("<div id='templateTable' class='contenedor-tabla'></div>");
+	$("#templateTable").append("<div id='table-header-0' class='contenedor-fila' style='height:50px;' templateSelectable='header-0'>&nbsp;Header</div>");
+    $("#templateTable").append("<div id='table-navigation-0' class='contenedor-fila' style='height:50px;' templateSelectable='navigation-0'>&nbsp;Navigation</div>");
+	$("#templateTable").append("<div id='table-main-0' class='contenedor-fila' templateSelectable='main-0'>&nbsp;Main</div>");
+	$("#templateTable").append("<div id='table-footer-0' class='contenedor-fila' style='height:50px;' templateSelectable='footer-0'>&nbsp;Footer</div>");
+
+	$(".contenedor-tabla").css({"display":"table","border-style": "groove", "height": "250px", "width": "180px", "border-collapse": "collapse", "border-width": "1px"});
 	selectTemplateCommon();
 }
 
@@ -1120,13 +1180,13 @@ function clearJson(object) {
 }
 
 // Funcion para mostrar un json por pantalla
-function showJson(object) {	
+function showJson(object) {
 	if (object) {
 		alert(JSON.stringify(object));
 	}
 }
 
-// Funcion para mostrar un json por consola 
+// Funcion para mostrar un json por consola
 function showJsonLog(object) {
 	if (object) {
 		console.log(JSON.stringify(object));
@@ -1143,6 +1203,7 @@ function selectPatter(){
 			"<option value='pattern1'>Men&uacute;</option> " +
 			"<option value='pattern2'>T&iacute;tulo</option> " +
 			"<option value='pattern3'>Formulario</option> " +
+			"<option value='pattern4'>Men&uacute; Material</option> " +
 	"</select></form><br/><br/>");
 	$("#selectPattern").on("change", function(){
 		selectedPattern = $("#selectPattern").val();
@@ -1153,26 +1214,26 @@ function selectPatter(){
 function applyPattern3(divElement, html){
 	var css = "<style class='patterCss3'>" +
 	"@media screen and (max-width:721px) { " +
-	"form > div { margin: 0 0 15px 0; } " + 
-	"form > div > label, " + 
-	"legend { " + 
-	"width: 100%; " + 
-	"float: none; " + 
+	"form > div { margin: 0 0 15px 0; } " +
+	"form > div > label, " +
+	"legend { " +
+	"width: 100%; " +
+	"float: none; " +
 	"margin: 0 0 5px 0;" +
-	"} " + 
-	"form > div > div, " + 
-	"form > div > fieldset > div { " + 
-	"width: 100%; " + 
-	"float: none;" + 
-	"} " + 
-	"input[type=text], " + 
-	"input[type=email], " + 
-	"input[type=url], " + 
-	"input[type=password], " + 
-	"textarea, " + 
-	"select { " + 
-	"width: 100%;" + 
-	"} " + 
+	"} " +
+	"form > div > div, " +
+	"form > div > fieldset > div { " +
+	"width: 100%; " +
+	"float: none;" +
+	"} " +
+	"input[type=text], " +
+	"input[type=email], " +
+	"input[type=url], " +
+	"input[type=password], " +
+	"textarea, " +
+	"select { " +
+	"width: 100%;" +
+	"} " +
 	"}" +
 	"</style>";
 	divElement.append(css);
@@ -1185,7 +1246,7 @@ function applyPattern1(xpath, divElement, iBody){
 		var dwrap = document.createElement("div");
 		$(dwrap).html(xpath);
 		var links = $(dwrap).find("a");
-		divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> <span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> "); 
+		divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> <span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> ");
 		$.each($(links), function(i, e){
 			var newLinks = document.createElement("li");
 			$(newLinks).append($(e));
@@ -1193,6 +1254,31 @@ function applyPattern1(xpath, divElement, iBody){
 		});
 	}
 }
+
+// Funcion para aplicar el patron menu material
+function applyPattern4(xpath, divElement, iBody){
+	if (xpath) {
+		console.log(xpath);
+		var dwrap = document.createElement("div");
+		$(dwrap).html(xpath);
+		var links = $(dwrap).find("a");
+		divElement.append("<ul id='menu-nav' class='nav navbar-nav'>  </ul> ");
+		console.log(links);
+		$.each($(links), function(i, e){
+			var newLinks = document.createElement("li");
+			console.log (newLinks);
+			$(newLinks).className = "mdl-navigation__link mdl-typography--text-uppercase";
+			$(newLinks).append($(e));
+			iBody.find("#menu-nav").append($(newLinks));
+			// $(newLinks).className = "mdl-navigation__link";
+			// iBody.find("#navigation-1").append($(newLinks));
+			// $(newLinks).className = "android-link mdl-typography--font-light";
+			// iBody.find("#navigation-2").append($(newLinks));
+		});
+	}
+}
+
+
 
 // Funcion para recuperar del local storage la informacion de la portabilizacion
 function getLocalSite(){
@@ -1240,7 +1326,7 @@ function createPreviewIFrame(){
 	if (!$("#framePreview").length) {
 		var iframeStyle = 'height:1280px; width:720px; background-color:white; position:fixed; top:-330px; right:-170px; z-index:99; border:5px solid #cc3300; transform:scale(0.45);';
 		if ("generic" === pageTemplate){
-			iframeStyle = 'height:769px; width:1366px; background-color:white; position:fixed; top:-200px; right:-382px; z-index:99; border:5px solid #cc3300; transform:scale(0.42);';			
+			iframeStyle = 'height:769px; width:1366px; background-color:white; position:fixed; top:-200px; right:-382px; z-index:99; border:5px solid #cc3300; transform:scale(0.42);';
 		}
 		else if ("mobilePhone" === pageTemplate) {
 			iframeStyle = 'height:1280px; width:720px; background-color:white; position:fixed; top:-330px; right:-185px; z-index:99; border:5px solid #cc3300; transform:scale(0.45);';
@@ -1260,7 +1346,7 @@ function createPreviewIFrame(){
 	}, 250);
 }
 
-// Funcion para actualizar el iframe de previsualizacion 
+// Funcion para actualizar el iframe de previsualizacion
 function actualizarIFrame(){
 	var objectParent = constructObject(pageAdaptation);
 	var bodyFrame = $("#framePreview").contents().find("body");
@@ -1272,27 +1358,28 @@ function actualizarIFrame(){
 
 // Funcion para generar el HTML del iframe de previsualizacion
 function runPage(objectParent, iBody, iHead){
-	iHead.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
-	iHead.append("<script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>");
-	iHead.append("<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>");
-	iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>");
-	iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>");
-	iHead.append("<style>*{min-width: 0px !important;}</style>");
-	iHead.append("<style>.heighBand20{height:20%;}</style>");
-	iHead.append("<style>.height15{height:15%;}</style>");
-	iHead.append("<style>.height20{height:20%;}</style>");
-	iHead.append("<style>.height25{height:25%;}</style>");
-	iHead.append("<style>.height40{height:40%;}</style>");
-	iHead.append("<style>.height55{height:55%;}</style>");
-	iHead.append("<style>.heighBand33{height:33%;}</style>");
-	iHead.append("<style>.widthBand50{width:50%;}</style>");
-	iHead.append("<style>.dashedBottom{border-bottom-style:dashed;}</style>");
-	iHead.append("<style>.dashedRight{border-right-style:dashed;}</style>");
-
 	if (objectParent != null){
 		// Se verifica si es una adaptacion mediante el editor o por comando GreaseMonkey.
 		if(!dinamicPreview){
-			iBody.html("");	    
+            if (!("material" === pageTemplate)){
+                iHead.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+                iHead.append("<script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>");
+                iHead.append("<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>");
+                iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>");
+                iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>");
+                iHead.append("<style>*{min-width: 0px !important;}</style>");
+                iHead.append("<style>.heighBand20{height:20%;}</style>");
+                iHead.append("<style>.height15{height:15%;}</style>");
+                iHead.append("<style>.height20{height:20%;}</style>");
+                iHead.append("<style>.height25{height:25%;}</style>");
+                iHead.append("<style>.height40{height:40%;}</style>");
+                iHead.append("<style>.height55{height:55%;}</style>");
+                iHead.append("<style>.heighBand33{height:33%;}</style>");
+                iHead.append("<style>.widthBand50{width:50%;}</style>");
+                iHead.append("<style>.dashedBottom{border-bottom-style:dashed;}</style>");
+                iHead.append("<style>.dashedRight{border-right-style:dashed;}</style>");
+            }
+			iBody.html("");
 			if ("generic" === pageTemplate){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-1' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-2' class='col-xs-4 height20 dashedBottom widthBand33'> </div> </div> " +
@@ -1314,7 +1401,7 @@ function runPage(objectParent, iBody, iHead){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
                     "<div class='row'> <div id='navigation-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
-					"<div class='row'> <div id='main-0' class='col-xs-12 height55 dashedBottom'></div> </div> " +				
+					"<div class='row'> <div id='main-0' class='col-xs-12 height55 dashedBottom'></div> </div> " +
 					"<div class='row'> <div id='footer-0' class='col-xs-12 height15'></div> </div> </div>");
 				importElement(objectParent["header-0"],"#header-0",iBody);
                 importElement(objectParent["navigation-0"],"#navigation-0",iBody);
@@ -1331,6 +1418,87 @@ function runPage(objectParent, iBody, iHead){
                 importElement(objectParent["navigation-0"],"#navigation-0",iBody);
 				importElement(objectParent["main-0"],"#main-0",iBody);
 				importElement(objectParent["main-1"],"#main-1",iBody);
+				importElement(objectParent["footer-0"],"#footer-0",iBody);
+			}
+			else if ("material" === pageTemplate) {
+				iHead.append("<meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0'>");
+			    iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en'>");
+			    iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>");
+			    iHead.append("<link rel='stylesheet' href='https://code.getmdl.io/1.3.0/material.min.css'>");
+				iHead.append("<style> body {margin: 0; }</style>");
+				iHead.append("<style> a img{border: 0px; }</style>");
+				iHead.append("<style> ::-moz-selection {background-color: #6ab344; color: #fff; }</style>");
+				iHead.append("<style> ::selection {background-color: #6ab344; color: #fff; }</style>");
+				iHead.append("<style> .main-content {padding-top: 64px; padding-left: 20px;}</style>");
+				iHead.append("<style> .android-header .mdl-menu__container {z-index: 50; margin: 0 !important; }</style>");
+				iHead.append("<style> .android-mobile-title {display: none !important; }</style>");
+				iHead.append("<style> .android-header {overflow: visible; background-color: white; position: fixed;}</style>");
+				iHead.append("<style> .android-header .material-icons {color: #767777 !important; }</style>");
+				iHead.append("<style> .android-header .mdl-layout__drawer-button {background: transparent; color: #767777; }</style>");
+				iHead.append("<style> .android-header .mdl-navigation__link {color: #757575; font-weight: 700; font-size: 14px; }</style>");
+				iHead.append("<style> .android-navigation-container {direction: rtl; -webkit-order: 1; -ms-flex-order: 1; order: 1; width: 500px; transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1); }</style>");
+				iHead.append("<style> .android-navigation {direction: ltr; -webkit-justify-content: flex-end; -ms-flex-pack: end; justify-content: flex-end; width: 800px; }</style>");
+				iHead.append("<style> .android-navigation .mdl-navigation__link {display: inline-block; height: 60px; line-height: 68px; background-color: transparent !important; border-bottom: 4px solid transparent; }</style>");
+				iHead.append("<style> .android-navigation .mdl-navigation__link:hover {border-bottom: 4px solid #8bc34a; }</style>");
+				iHead.append("<style> .android-more-button {-webkit-order: 3; -ms-flex-order: 3; order: 3; }</style>");
+				iHead.append("<style> .android-drawer {border-right: none; position: fixed;}</style>");
+				iHead.append("<style> .android-drawer-separator {height: 1px; background-color: #dcdcdc; margin: 8px 0; }</style>");
+				iHead.append("<style> .android-drawer .mdl-navigation__link.mdl-navigation__link {font-size: 14px; color: #757575; }</style>");
+				iHead.append("<style> .android-drawer span.mdl-navigation__link.mdl-navigation__link {color: #8bc34a; }</style>");
+				iHead.append("<style> .android-drawer .mdl-layout-title {position: relative; background: #6ab344; color: #fff; display: table-cell; }</style>");
+				iHead.append("<style> .android-link {text-decoration: none; color: #8bc34a !important; }</style>");
+				iHead.append("<style> .android-link:hover {color: #7cb342 !important; }</style>");
+				iHead.append("<style> .android-link .material-icons {position: relative; top: -1px; vertical-align: middle; }</style>");
+				iHead.append("<style> .android-alt-link {text-decoration: none; color: #64ffda !important; font-size: 16px; }</style>");
+				iHead.append("<style> .android-alt-link:hover {color: #00bfa5 !important; }</style>");
+				iHead.append("<style> .android-alt-link .material-icons {position: relative; top: 6px; }</style>");
+				iHead.append("<style> .android-footer {background-color: #fafafa; position: relative; }</style>");
+				iHead.append("<style> .android-footer a:hover {color: #8bc34a; }</style>");
+				iHead.append("<style> .android-footer .mdl-mega-footer--top-section::after {border-bottom: none; }</style>");
+				iHead.append("<style> .android-footer .mdl-mega-footer--middle-section::after {border-bottom: none; }</style>");
+				iHead.append("<style> .android-footer .mdl-mega-footer--bottom-section {position: relative; }</style>");
+				iHead.append("<style> .android-footer .mdl-mega-footer--bottom-section a {margin-right: 2em; }</style>");
+				iHead.append("<style> .android-footer .mdl-mega-footer--right-section a .material-icons {position: relative; top: 6px; }</style>");
+				iHead.append("<style> .android-link-menu:hover {cursor: pointer; }</style>");
+				iHead.append("<style> @media (max-width: 700px) {"+
+				  ".android-navigation-container {display: none; }"+
+				  ".android-title {display: none !important; }"+
+				  ".android-mobile-title {display: block !important; position: absolute; left: calc(50% - 70px); top: 12px; transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1); }"+
+				  ".android-more-button {display: none; }"+
+				  ".android-footer .mdl-mega-footer--bottom-section {display: none; }"+
+				"}</style>");
+				iHead.append("<style> #view-source {position: fixed; display: block; right: 0; bottom: 0; margin-right: 40px; margin-bottom: 40px; z-index: 900; } </style>");
+				iBody.append("<div class='mdl-layout mdl-js-layout mdl-layout--fixed-header'><div class='android-header mdl-layout__header mdl-layout__header--waterfall is-casting-shadow is-compact'>"+
+                "<div aria-expanded='false' role='button' tabindex='0' class='mdl-layout__drawer-button' id='drwrbtn'><i class='material-icons'></i></div> <div class='mdl-layout__header-row'>"+
+				"<span class='android-title mdl-layout-title'><div id='header-0' style='color: #8bc34a;'></div></span><div class='android-header-spacer mdl-layout-spacer'></div>"+
+				"<div class='android-navigation-container'><nav class='android-navigation mdl-navigation' id='navigation-0'><a class='mdl-navigation__link mdl-typography--text-uppercase' href=''>Hello</a></nav></div>"+
+				"<span class='android-mobile-title mdl-layout-title'><div id='header-1'></div></span></div></div>"+
+				"<div id='drwr' class='android-drawer mdl-layout__drawer' aria-hidden='true'><span class='mdl-layout-title'><div id='header-2'></div></span><nav class='mdl-navigation' id='navigation-1'><a class='mdl-navigation__link' href=''>Hello</a></nav></div>"+
+				"<div class='android-content mdl-layout__content'><a name='top'></a><div class='main-content' id='main-0'></div><footer class='android-footer mdl-mega-footer'>"+
+				"<div class='mdl-mega-footer--top-section'><div class='mdl-mega-footer--right-section'><a class='mdl-typography--font-light' href='#top'>Volver Arriba<i class='material-icons'>expand_less</i></a></div></div>"+
+				"<div class='mdl-mega-footer--middle-section'><p class='mdl-typography--font-light'>Template Material: © 2018 Máximo, IAW</p></div>"+
+				"<div class='mdl-mega-footer--bottom-section' id='navigation-2'><a class='android-link mdl-typography--font-light' href=''>Hello</a></div></footer></div>"+
+                "<div class='mdl-layout__obfuscator' id='bfsctr'></div></div>"+
+				"<a href='' target='_blank' id='view-source' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast'>Ver Original</a>");
+				iBody.append("<script type='text/javascript'>"+
+				"var drawerButton = document.getElementById('drwrbtn');"+
+				"var drawer = document.getElementById('drwr');"+
+				"var obfuscator = document.getElementById('bfsctr');"+
+				"drawerButton.onclick = function (evt) {"+
+				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); };"+
+				"toggleDrawer = function () {"+
+				"if (drawer.getAttribute('aria-hidden') == 'true') {obfuscator.className = 'mdl-layout__obfuscator is-visible'; drawer.className = 'android-drawer mdl-layout__drawer is-visible'; drawer.setAttribute('aria-hidden', 'false'); drawerButton.setAttribute('aria-expanded', 'true');"+
+				"} else {obfuscator.className = 'mdl-layout__obfuscator'; drawer.className = 'android-drawer mdl-layout__drawer'; drawer.setAttribute('aria-hidden', 'true'); drawerButton.setAttribute('aria-expanded', 'false'); } };"+
+				"obfuscator.onclick = function (evt) {"+
+				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); }; "+
+				"</script>");
+				importElement(objectParent["header-0"],"#header-0",iBody);
+				importElement(objectParent["header-0"],"#header-1",iBody);
+				importElement(objectParent["header-0"],"#header-2",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-1",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-2",iBody);
+				importElement(objectParent["main-0"],"#main-0",iBody);
 				importElement(objectParent["footer-0"],"#footer-0",iBody);
 			}
 			else {
@@ -1359,6 +1527,10 @@ function importElement(source, destination, iBody){
 	else if ("pattern3" === source.pattern ) {
 		// Formulario
 		applyPattern3(divElement, source.xpath);
+	}
+	else if ("pattern4" === source.pattern ) {
+		// Menú material
+		applyPattern4(divElement, source.xpath);
 	}
 }
 
