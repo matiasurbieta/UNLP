@@ -1360,6 +1360,7 @@ function runPage(objectParent, iBody, iHead){
 	if (objectParent != null){
 		// Se verifica si es una adaptacion mediante el editor o por comando GreaseMonkey.
 		if(!dinamicPreview){
+			iBody.html("");
             if (!("material" === pageTemplate)){
                 iHead.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
                 iHead.append("<script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>");
@@ -1378,7 +1379,6 @@ function runPage(objectParent, iBody, iHead){
                 iHead.append("<style>.dashedBottom{border-bottom-style:dashed;}</style>");
                 iHead.append("<style>.dashedRight{border-right-style:dashed;}</style>");
             }
-			iBody.html("");
 			if ("generic" === pageTemplate){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-1' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-2' class='col-xs-4 height20 dashedBottom widthBand33'> </div> </div> " +
@@ -1472,13 +1472,21 @@ function runPage(objectParent, iBody, iHead){
 				"<span class='android-title mdl-layout-title'><div id='header-0' style='color: #8bc34a;'></div></span><div class='android-header-spacer mdl-layout-spacer'></div>"+
 				"<div class='android-navigation-container'><nav class='android-navigation mdl-navigation' id='navigation-0'></nav></div>"+
 				"<span class='android-mobile-title mdl-layout-title'><div id='header-1'></div></span></div></div>"+
-				"<div id='drwr' class='android-drawer mdl-layout__drawer' aria-hidden='true'><span class='mdl-layout-title'><div id='header-2'></div></span><nav class='mdl-navigation' id='navigation-1'><a class='mdl-navigation__link' href=''>Hello</a></nav></div>"+
+				"<div id='drwr' class='android-drawer mdl-layout__drawer' aria-hidden='true'><span class='mdl-layout-title'><div id='header-2'></div></span><nav class='mdl-navigation' id='navigation-1'></nav></div>"+
 				"<div class='android-content mdl-layout__content'><a name='top'></a><div class='main-content' id='main-0'></div><footer class='android-footer mdl-mega-footer'>"+
 				"<div class='mdl-mega-footer--top-section'><div class='mdl-mega-footer--right-section'><a class='mdl-typography--font-light' href='#top'>Volver Arriba<i class='material-icons'>expand_less</i></a></div></div>"+
-				"<div class='mdl-mega-footer--middle-section'><p class='mdl-typography--font-light'>Template Material: © 2018 Máximo, IAW</p></div>"+
+				"<div class='mdl-mega-footer--middle-section mdl-typography--font-light' id='footer-0'></div>"+
 				"<div class='mdl-mega-footer--bottom-section' id='navigation-2'></div></footer></div>"+
                 "<div class='mdl-layout__obfuscator' id='bfsctr'></div></div>"+
 				"<a href='' target='_blank' id='view-source' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast'>Ver Original</a>");
+				importElement(objectParent["header-0"],"#header-0",iBody);
+				importElement(objectParent["header-0"],"#header-1",iBody);
+				importElement(objectParent["header-0"],"#header-2",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-1",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-2",iBody);
+				importElement(objectParent["main-0"],"#main-0",iBody);
+				importElement(objectParent["footer-0"],"#footer-0",iBody);
 				iBody.append("<script type='text/javascript'>"+
 				"var drawerButton = document.getElementById('drwrbtn');"+
 				"var drawer = document.getElementById('drwr');"+
@@ -1491,14 +1499,6 @@ function runPage(objectParent, iBody, iHead){
 				"obfuscator.onclick = function (evt) {"+
 				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); }; "+
 				"</script>");
-				importElement(objectParent["header-0"],"#header-0",iBody);
-				importElement(objectParent["header-0"],"#header-1",iBody);
-				importElement(objectParent["header-0"],"#header-2",iBody);
-                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
-                importElement(objectParent["navigation-0"],"#navigation-1",iBody);
-                importElement(objectParent["navigation-0"],"#navigation-2",iBody);
-				importElement(objectParent["main-0"],"#main-0",iBody);
-				importElement(objectParent["footer-0"],"#footer-0",iBody);
 			}
 			else {
 				alert("Información del template incompleta.");
