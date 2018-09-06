@@ -762,7 +762,7 @@ function exportJson() {
 		alert("No hay elementos seleccionados para exportar.");
 	}
 	else {
-				var adaptation = prompt("Exportar configuración. Presione Ctrl+C para copiar los datos o Aceptar para hacerlo automáticamente:", JSON.stringify(siteAdaptation));
+		var adaptation = prompt("Exportar configuración. Presione Ctrl+C para copiar los datos o Aceptar para hacerlo automáticamente:", JSON.stringify(siteAdaptation));
 		if (adaptation) {
 			var dummy = document.createElement("input");
 
@@ -1248,7 +1248,6 @@ function applyPattern3(divElement, html){
 
 // Funcion para aplicar el patron menu
 function applyPattern1(xpath, divElement, iBody){
-	console.log("ejecuto pattern 1");
 	if (xpath) {
 		var dwrap = document.createElement("div");
 		$(dwrap).html(xpath);
