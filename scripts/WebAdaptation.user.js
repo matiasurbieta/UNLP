@@ -261,7 +261,6 @@ function frameElement(){
 	// A medida que se va haciendo mouseenter a los elementos, se va actualizando el elemento seleccionado para luego a partir de ahi se pueda mover con el key.
 	$("[selected_Aryta='on']:eq(0)").removeAttr("selected_Aryta");
 	$(this).attr("selected_Aryta", "on");
-	$(this).off("click");
 	$(this).css({"cursor":"default"})
 
 	//Se le da el borde rojo al elemento. Como el evento hover se aplica tambien a los elementos padres, se guarda los bordes originales y cuando cambie el hover se le asignan los originales nuevamente.
@@ -432,6 +431,7 @@ function replaceElement(){
 				}
 			}
 		}
+		closeModal($("[id='div-aryta-cloned']"));
 		actualizarIFrame();
 	}
 	closeModal($("[id='div-aryta-cloned']"));
@@ -717,6 +717,9 @@ function startEdit(){
 	if(!editIniciado){
 		editIniciado=true;
 		$("html").on("keypress", frameElementKey);
+		$("html").on('click', 'a', function(e) {
+		    e.preventDefault();
+		});
 		$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").not("#buttonMenuFlotant").on("mouseenter", frameElement);
 		$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").not("#buttonMenuFlotant").on("mouseleave", function(){deframeElement($(this));});
 		createPreviewIFrame();
@@ -727,6 +730,7 @@ function startEdit(){
 function stopEdit(){
 	editIniciado=false;
 	$("html").off("keypress", frameElementKey);
+	$("html").off('click', 'a');
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseenter", frameElement);
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseleave", function(){deframeElement($(this));});
 }
@@ -1260,19 +1264,19 @@ function applyPattern1(xpath, divElement, iBody){
 
 // Funcion para aplicar el patron menu material
 function applyPattern4(xpath, divElement, iBody){
-	console.log("ejecuto pattern 4");
 	if (xpath) {
-		console.log(divElement);
 		var dwrap = document.createElement("div");
 		$(dwrap).html(xpath);
 		var links = $(dwrap).find("a");
 		$.each($(links), function(i, e){
-			e.className += " mdl-navigation__link mdl-typography--text-uppercase";
+			if (divElement[0].className == "mdl-mega-footer--bottom-section"){
+				e.className += " android-link mdl-typography--font-light";
+			} else if (divElement[0].className == "android-navigation mdl-navigation"){
+				e.className += " mdl-navigation__link mdl-typography--text-uppercase";
+			} else if (divElement[0].className == "mdl-navigation"){
+				e.className += " mdl-navigation__link";
+			}
 			divElement.append($(e));
-			// $(newLinks).className = "mdl-navigation__link";
-			// iBody.find("#navigation-1").append($(newLinks));
-			// $(newLinks).className = "android-link mdl-typography--font-light";
-			// iBody.find("#navigation-2").append($(newLinks));
 		});
 	}
 }
