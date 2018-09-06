@@ -1495,6 +1495,7 @@ function runPage(objectParent, iBody, iHead){
 				"var drawerButton = document.getElementById('drwrbtn');"+
 				"var drawer = document.getElementById('drwr');"+
 				"var obfuscator = document.getElementById('bfsctr');"+
+				"if ( drawerButton != null && drawer != null && obfuscator != null ) {"+
 				"drawerButton.onclick = function (evt) {"+
 				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); };"+
 				"toggleDrawer = function () {"+
@@ -1502,6 +1503,7 @@ function runPage(objectParent, iBody, iHead){
 				"} else {obfuscator.className = 'mdl-layout__obfuscator'; drawer.className = 'android-drawer mdl-layout__drawer'; drawer.setAttribute('aria-hidden', 'true'); drawerButton.setAttribute('aria-expanded', 'false'); } };"+
 				"obfuscator.onclick = function (evt) {"+
 				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); }; "+
+				"};"+
 				"</script>");
 			}
 			else {
