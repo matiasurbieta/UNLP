@@ -11,6 +11,7 @@
 // @noframes
 // @run-at document-end
 // ==/UserScript==
+//[{"url":"http://secyt.presi.unlp.edu.ar/Wordpress/","urlCompareType":"equal","template":"mobilePhone","pageAdaptation":{"header-0":{"xpath":["/html/body/DIV[1]/DIV[1]/H1[1]/a[1]"],"pattern":"pattern2"},"navigation-0":{"xpath":["/html/body/DIV[1]/DIV[3]/DIV[2]/div[1]"],"pattern":"pattern2"},"main-0":{"xpath":["/html/body/DIV[1]/DIV[3]/DIV[2]/div[2]"],"pattern":"pattern0"},"footer-0":{"xpath":["none"],"pattern":"none"}}}]
 
 (function() {
 'use strict';
@@ -24,6 +25,8 @@ GM_registerMenuCommand('Adaptar página', previewPage, "A");
 GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
 GM_registerMenuCommand('Importar configuración', importJson, "I");
 GM_registerMenuCommand('Exportar configuración', exportJson, "X");
+GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "F");
+GM_registerMenuCommand('Listado de adaptaciones disponibles', importJsonFromCatalog, "J");
 
 //-----------------------------------------------------------
 // VARIABLES GLOBALES
@@ -749,6 +752,37 @@ function exportJson() {
 		prompt("Exportar configuración. Presione Ctrl+C para copiar los datos:", JSON.stringify(siteAdaptation));
 	}
 }
+
+// Funcion para exportar el json con las adaptaciones al catálogo
+function exportJsonToCatalog() {
+	if (countSeletedElements() == 0) {
+		alert("No hay elementos seleccionados para exportar.");
+	}
+	else {
+		var postReqCatalog = new XMLHttpRequest();
+		var urlCatalog = "http://localhost:3000/api/augmentations/";
+		postReqCatalog.open("POST", urlCatalog, false);
+		postReqCatalog.setRequestHeader("Content-Type", "application/json");
+		var data = JSON.stringify(siteAdaptation);
+		alert("Se está por POSTear: " + data);
+		postReqCatalog.send(data);
+		if (postReqCatalog.status == 200 || postReqCatalog.status == 400){
+			alert(postReqCatalog.responseText);
+		}
+	}
+}
+
+function importJsonFromCatalog{
+	var myUrl = window.location.href;
+	var gettReqCatalog = new XMLHttpRequest();
+	var urlCatalog = "http://localhost:3000/api/augmentations/?url=" + myUrl;
+		postReqCatalog.open("GET", urlCatalog, false);
+		postReqCatalog.setRequestHeader("Content-Type", "application/json");
+		if (postReqCatalog.status == 200 || postReqCatalog.status == 400){
+			alert(postReqCatalog.responseText);
+		}
+}
+
 
 // Funcion para importar el json con las adaptaciones
 function importJson() {
