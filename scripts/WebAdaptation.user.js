@@ -93,7 +93,7 @@ initializeEdition();
 //-----------------------------------------------------------
 
 // Funcion que se encarga de configurar la edicion del sitio Web con la herramienta
-function initializeEdition() {	
+function initializeEdition() {
 	$(window).load(function(){
 		stopEdit();
 	});
@@ -103,6 +103,19 @@ function initializeEdition() {
 			actualizarIFrame();
 		}
 	});
+
+	$("html").on('click', 'a', function(e) {
+		// e.preventDefault();
+		if(navigator.onLine){
+			console.log("Hay conexión estable.");
+		}
+		else{
+			alert("Se continuará la nevagación sin conexión a internet.");
+		}
+	});
+
+	
+
 }
 
 // Funcion que arma la tabla con los elementos cargados en el JSON
@@ -177,7 +190,7 @@ function armarXpath(selectedElement){
 				find = true;
 			}
 			pos = pos + 1;
-		}  
+		}
 		xPath = "/"+tag+"["+(position + 1)+"]"+xPath;
 		element = element.parent(); 	// Se guarda al padre
 		tag = $(element).get(0).tagName;
@@ -216,7 +229,7 @@ function sizeModal(cloned){
 	}
 	else{
 		clonedTop = 100;
-		$(element).height(winH - $(menu).height() - 200); 
+		$(element).height(winH - $(menu).height() - 200);
 		$(element).css({overflow: "scroll"});
 	}
 	var clonedLeft;
@@ -266,7 +279,7 @@ function frameElement(){
 		$(this).css({"background-color":"#95BB93", "border-style":"solid", "border-color":"#175414", "border-width":"2px"});
 	}
 	else{
-		$(this).css({"background-color":"rgba(255, 255, 255, 0.3)", "border-style":"solid", "border-color":"#175414"}); 
+		$(this).css({"background-color":"rgba(255, 255, 255, 0.3)", "border-style":"solid", "border-color":"#175414"});
 	}
 
 	getOriginalStyles($("*[aryta-hovered='aryta-hovered']").not(this));
@@ -356,7 +369,7 @@ function openModal(highlightElement){
 	$("#div-aryta-cloned").append(clonedElement);
 	createMenuButton(highlightElement);
 
-	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños. 
+	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños.
 	//Se separo porque no tomaba bien los tamaños en caso de que se tenga un margen automatico.
 
 	stylesModal($("#div-aryta-cloned")); // ID del div que contiene al clon y a los botones
@@ -373,7 +386,7 @@ function openModal(highlightElement){
 	$("#backgroundModal").fadeTo(400, 0.7);
 	$("#backgroundModal").height(altura);
 
-	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal. 
+	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
 	$("#backgroundModal").on("click", function(){closeModal($("[id='div-aryta-cloned']"));});
 }
 
@@ -484,7 +497,7 @@ function deframeElementButton(){
 function identificationOfTheElement(seleccionado, referencia){
 	// Se verifica mediante el identificador si es el elemento padre o algunos de los hijos.
 	switch($(seleccionado).attr("identity")){
-	case "father": 
+	case "father":
 		return $("[selected_Aryta='on']:eq(0)").parent();
 	default:
 		var index = $(seleccionado).attr("identity");
@@ -492,8 +505,8 @@ function identificationOfTheElement(seleccionado, referencia){
 	if(referencia == "original"){
 		$("[buttonAryta='original']").removeAttr("buttonAryta");
 	}
-	return $(element); 
-	} 
+	return $(element);
+	}
 }
 
 // Funcion que agrega agrega manejadores de eventos al boton activo
@@ -535,13 +548,13 @@ function createFatherButton(){
 	if (!$("*[selected_Aryta*=on]:eq(0)").parent().is('body')){
 		$("#BackgroundMenuButton").append("<input id= 'fatherButton'/>");
 		$("#fatherButton").attr("type", "button").attr("value", "Padre").attr("identity", "father").css("margin-button", "0.5%");
-		element_button_click = "#fatherButton";   
+		element_button_click = "#fatherButton";
 	}
 }
 
 // Funcion que se encarga de crear el/los boton/es hijo/s del elemento seleccionado
 function createChildrenButton(){
-	// Se extraen los hijos del elemento seleccionado 
+	// Se extraen los hijos del elemento seleccionado
 	var children = $("[selected_Aryta='on']:eq(0)").children().not(unwelcome_element).not(":hidden").not(":empty");
 	var children_clone = $("#aryta-cloned").children().not(unwelcome_element).not(":hidden").not(":empty");
 	var button_name; // Para el TagName del elemento. Se le agrega al value del boton.
@@ -605,7 +618,7 @@ function selectorFamily(element , var_elemento, attribute){
 		$(element).attr(""+ attribute + "", "on");
 
 		// Necesario saber si el elemento a identificar es parte del clon.
-		if(attribute == "selected_Aryta_cloned"){   
+		if(attribute == "selected_Aryta_cloned"){
 			element = identificationOfTheElement($(element),"clone");
 		}
 		var_elemento.removeAttr(""+ attribute + "");
@@ -666,7 +679,7 @@ function keysNavigation(event){
 			}
 			return selectorFamily($(element).parent(), element, attribute);
 		}
-		break;      
+		break;
 	case 40: // Abajo - Se seleccionara al primer hijo del elemento actual. Esta funcion solamente estara habilitado con el modal desactivado.
 		if(!modal_activated){
 			return selectorFamily($(element).children().first(), element,  attribute);
@@ -852,7 +865,7 @@ function concatElement(element){
 	$.each( element, function( key, value ) {
 		if (value != "none"){
 			getElement = getElements(value);
-			if(getElement != null){    	 
+			if(getElement != null){
 				stringElements += "<div>"+getElement.innerHTML+"</div>";
 			}
 			else
@@ -881,7 +894,7 @@ function constructObject(obj){
 		}
 		else
 			object[key] = {"xpath":elem,"pattern":value["pattern"]};
-	});  
+	});
 	if (error == true){
 		alert(message);
 		return null;
@@ -1022,7 +1035,7 @@ function selectTemplateCommon(){
 	$(".contenedor-fila").css({"display":"table-row", "border-style": "groove", "border":"1px solid black"});
 	$(".contenedor-columna").css({"display":"table-cell", "border-style": "groove", "border":"1px solid black"});
 
-	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños. 
+	//Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños.
 	//Se separo porque no tomaba bien los tamaños en caso de que se tenga un margen automatico.
 
 	stylesModal($("#div-aryta-cloned")); // ID del div que contiene al clon y a los botones
@@ -1038,7 +1051,7 @@ function selectTemplateCommon(){
 	$("#backgroundModal").fadeTo(400, 0.7);
 	$("#backgroundModal").height(altura);
 
-	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal. 
+	//Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
 	$("#backgroundModal").on("click", function(){closeModal($("[id='div-aryta-cloned']"));});
 
 	//Se habilita la funcion de poder seleccionar un lugar en el template.
@@ -1059,7 +1072,7 @@ function selectMobilePhone(isSelected){
 	$("#div-templateTable").append("<div id='templateTable' class='contenedor-tabla'></div>");
 	$("#templateTable").append("<div id='table-header-0' class='contenedor-fila' style='height:50px;' templateSelectable='header-0'>&nbsp;Header</div>");
     $("#templateTable").append("<div id='table-navigation-0' class='contenedor-fila' style='height:50px;' templateSelectable='navigation-0'>&nbsp;Navigation</div>");
-	$("#templateTable").append("<div id='table-main-0' class='contenedor-fila' templateSelectable='main-0'>&nbsp;Main</div>");	
+	$("#templateTable").append("<div id='table-main-0' class='contenedor-fila' templateSelectable='main-0'>&nbsp;Main</div>");
 	$("#templateTable").append("<div id='table-footer-0' class='contenedor-fila' style='height:50px;' templateSelectable='footer-0'>&nbsp;Footer</div>");
 
 	$(".contenedor-tabla").css({"display":"table","border-style": "groove", "height": "250px", "width": "180px", "border-collapse": "collapse", "border-width": "1px"});
@@ -1078,7 +1091,7 @@ function selectTablet(isSelected){
 	$("#div-templateTable").append("<div id='templateTable' class='contenedor-tabla'></div>");
 	$("#templateTable").append("<div id='table-header-0' class='contenedor-fila' style='height:40px;' templateSelectable='header-0'>&nbsp;Header</div>");
     $("#templateTable").append("<div id='table-navigation-0' class='contenedor-fila' style='height:40px;' templateSelectable='navigation-0'>&nbsp;Navigation</div>");
-	$("#templateTable").append("<div id='table-main' class='contenedor-fila'></div>"); 
+	$("#templateTable").append("<div id='table-main' class='contenedor-fila'></div>");
 	$("#templateTable").append("<div id='table-footer-0' class='contenedor-fila' style='height:40px;' templateSelectable='footer-0'>&nbsp;Footer</div>");
 
 	$("#table-main").append("<div id='table-main-0' class='contenedor-columna' style='width:50%' templateSelectable='main-0'>&nbsp;Main 0</div>");
@@ -1120,13 +1133,13 @@ function clearJson(object) {
 }
 
 // Funcion para mostrar un json por pantalla
-function showJson(object) {	
+function showJson(object) {
 	if (object) {
 		alert(JSON.stringify(object));
 	}
 }
 
-// Funcion para mostrar un json por consola 
+// Funcion para mostrar un json por consola
 function showJsonLog(object) {
 	if (object) {
 		console.log(JSON.stringify(object));
@@ -1153,26 +1166,26 @@ function selectPatter(){
 function applyPattern3(divElement, html){
 	var css = "<style class='patterCss3'>" +
 	"@media screen and (max-width:721px) { " +
-	"form > div { margin: 0 0 15px 0; } " + 
-	"form > div > label, " + 
-	"legend { " + 
-	"width: 100%; " + 
-	"float: none; " + 
+	"form > div { margin: 0 0 15px 0; } " +
+	"form > div > label, " +
+	"legend { " +
+	"width: 100%; " +
+	"float: none; " +
 	"margin: 0 0 5px 0;" +
-	"} " + 
-	"form > div > div, " + 
-	"form > div > fieldset > div { " + 
-	"width: 100%; " + 
-	"float: none;" + 
-	"} " + 
-	"input[type=text], " + 
-	"input[type=email], " + 
-	"input[type=url], " + 
-	"input[type=password], " + 
-	"textarea, " + 
-	"select { " + 
-	"width: 100%;" + 
-	"} " + 
+	"} " +
+	"form > div > div, " +
+	"form > div > fieldset > div { " +
+	"width: 100%; " +
+	"float: none;" +
+	"} " +
+	"input[type=text], " +
+	"input[type=email], " +
+	"input[type=url], " +
+	"input[type=password], " +
+	"textarea, " +
+	"select { " +
+	"width: 100%;" +
+	"} " +
 	"}" +
 	"</style>";
 	divElement.append(css);
@@ -1185,7 +1198,7 @@ function applyPattern1(xpath, divElement, iBody){
 		var dwrap = document.createElement("div");
 		$(dwrap).html(xpath);
 		var links = $(dwrap).find("a");
-		divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> <span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> "); 
+		divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> <span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> ");
 		$.each($(links), function(i, e){
 			var newLinks = document.createElement("li");
 			$(newLinks).append($(e));
@@ -1240,7 +1253,7 @@ function createPreviewIFrame(){
 	if (!$("#framePreview").length) {
 		var iframeStyle = 'height:1280px; width:720px; background-color:white; position:fixed; top:-330px; right:-170px; z-index:99; border:5px solid #cc3300; transform:scale(0.45);';
 		if ("generic" === pageTemplate){
-			iframeStyle = 'height:769px; width:1366px; background-color:white; position:fixed; top:-200px; right:-382px; z-index:99; border:5px solid #cc3300; transform:scale(0.42);';			
+			iframeStyle = 'height:769px; width:1366px; background-color:white; position:fixed; top:-200px; right:-382px; z-index:99; border:5px solid #cc3300; transform:scale(0.42);';
 		}
 		else if ("mobilePhone" === pageTemplate) {
 			iframeStyle = 'height:1280px; width:720px; background-color:white; position:fixed; top:-330px; right:-185px; z-index:99; border:5px solid #cc3300; transform:scale(0.45);';
@@ -1260,7 +1273,7 @@ function createPreviewIFrame(){
 	}, 250);
 }
 
-// Funcion para actualizar el iframe de previsualizacion 
+// Funcion para actualizar el iframe de previsualizacion
 function actualizarIFrame(){
 	var objectParent = constructObject(pageAdaptation);
 	var bodyFrame = $("#framePreview").contents().find("body");
@@ -1292,7 +1305,7 @@ function runPage(objectParent, iBody, iHead){
 	if (objectParent != null){
 		// Se verifica si es una adaptacion mediante el editor o por comando GreaseMonkey.
 		if(!dinamicPreview){
-			iBody.html("");	    
+			iBody.html("");
 			if ("generic" === pageTemplate){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-1' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-2' class='col-xs-4 height20 dashedBottom widthBand33'> </div> </div> " +
@@ -1314,7 +1327,7 @@ function runPage(objectParent, iBody, iHead){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
                     "<div class='row'> <div id='navigation-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
-					"<div class='row'> <div id='main-0' class='col-xs-12 height55 dashedBottom'></div> </div> " +				
+					"<div class='row'> <div id='main-0' class='col-xs-12 height55 dashedBottom'></div> </div> " +
 					"<div class='row'> <div id='footer-0' class='col-xs-12 height15'></div> </div> </div>");
 				importElement(objectParent["header-0"],"#header-0",iBody);
                 importElement(objectParent["navigation-0"],"#navigation-0",iBody);
