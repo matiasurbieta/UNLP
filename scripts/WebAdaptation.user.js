@@ -107,15 +107,23 @@ function initializeEdition() {
 	$("html").on('click', 'a', function(e) {
 		// e.preventDefault();
 		if(navigator.onLine){
-			console.log("Hay conexión estable.");
+			console.log("Hay conexión estable: se acepta el click.");
 		}
 		else{
 			alert("Se continuará la nevagación sin conexión a internet.");
 		}
 	});
 
-	
-
+	$("html").on('submit', 'form', function(e) {
+		// e.preventDefault();
+		if(navigator.onLine){
+			console.log("Hay conexión estable: se genera el submit.");
+		}
+		else{
+			alert("Submit interceptado: No hay conexión a internet.");
+			e.preventDefault();
+		}
+	});
 }
 
 // Funcion que arma la tabla con los elementos cargados en el JSON
