@@ -20,7 +20,7 @@
 		$('head script[src*="jquery"]').remove();
 	}
 
-	GM_registerMenuCommand('Importar configuración', viewSelected);
+	GM_registerMenuCommand('Importar configuración', importJson);
 	GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
 
 	var siteAdaptation = [];
@@ -122,10 +122,7 @@
 		cloned.css(stylesCloned);
 	}
 
-
-	// Funcion que arma la tabla con los elementos cargados en el JSON
-	function viewSelected(){
-
+	function importJson() {
 		// Se crea un div que contendra la tabla.
 		$("body").append("<div id= 'aryta-cartel' style='width: 50%; padding: 10px; margin: auto auto;'></div>");
 
@@ -182,31 +179,6 @@
 
 		// Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
 		$("#backgroundModal").on("click", function(){closeModal($("[id='aryta-cartel']"));});
-	}
-
-	function importJson() {
-		var dataImport = prompt("Importar la configuración. Ingrese el JSON correspondiente");
-		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
-		if(dataImport.length >= 50 ){
-			var siteImport = JSON.parse(dataImport);
-			if($.isArray(siteImport)) {
-				saveLocalSite(siteImport);
-				siteAdaptation = siteImport;
-				var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-				if (index < 0) {
-					index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-				}
-				if (index > -1) {
-					executePageAdaptation(index);
-				}
-				alert("Se ha importado correctamente la configuración.");
-			}
-			else {
-				alert("Los datos ingresados no tienen un formato válido.");
-			}
-		} else {
-			alert("Los datos ingresados no tienen un formato válido.");
-		}	
 	}
 
 	function saveLocalSite(site){
