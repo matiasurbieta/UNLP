@@ -1,4 +1,3 @@
-
 // ==UserScript==
 // @name       ResponsivePage
 // @namespace  http://lifia.unlp.edu.ar
@@ -25,13 +24,8 @@
 
 	var siteAdaptation = [];
 	var pageUrl = window.location.href;
-	var elements = "body, html, tr, td, th, thead, tbody, li, li a";	//Todos los elementos que no se tomaran en cuenta para exportara
-	var stylesBackground = {"position": "absolute", "left": "0px", "top": "0px", "background": "#000000", "z-index": "2000", "width": "100%", "opacity": "0"};
 	var localStoragedError = "El navegador Web no tiene soporte de almacenamiento Local Storage.";
-	var element_button_click = "";
-	var modal_activated = false; 	
-
-
+	
 	initialize();
 
 	function initialize() {	
@@ -56,129 +50,29 @@
 		runPage(objectParent,$("body"),$("head"), pageStorage.template);
 	}
 
-	function getOriginalStyles(savedElement){
-		var originalBorder = $(savedElement).attr("aryta-border");
-		var originalBackground = $(savedElement).attr("aryta-background");
-		var stylesOriginal = {"background-color": originalBackground, border: originalBorder};
-		$(savedElement).css(stylesOriginal);
-	}
-
-
-	// Funcion que se encarga de cerrar el div modal y su fondo, y recupera los estilos por defecto del elemento resaltado.
-	function closeModal(elementToRemove){
-		//Se elimina el fondo del modal
-		$("#backgroundModal").remove();
-		$("#backgroundModal").fadeTo(400, 0, function(){$("#backgroundModal").remove();});
-		getOriginalStyles($("*[aryta-border]"));
-
-		//Se elimina el div que contiene el elemento clonado y el menu de botones.
-		$(elementToRemove).remove(); // Elimina el div.
-
-		/* == Codigo embebido de Diego, para habilitar nuevamente los eventos del menu de botones === */
-		modal_activated = false;
-	}
-
-	// Funcion que le agrega los estilos al elemento clonado que sea parte del Modal
-	function stylesModal(cloned){
-		var clonedPosition = "fixed";
-		var clonedZIndex = "3000";
-		var clonedBackgroundColor;
-		if(cloned.css("background-color") == "transparent" || cloned.css("background-color") == "rgba(0, 0, 0, 0)"){
-			clonedBackgroundColor = "white";
-		}
-		else{
-			clonedBackgroundColor = cloned.css("background-color");
-		}
-		var stylesCloned = {'position' : clonedPosition, 'z-index': clonedZIndex, 'background-color': clonedBackgroundColor};
-		if ($("#main-menu").length) {
-			$("#main-menu").css("bottom", "auto");
-		}
-		cloned.css(stylesCloned);
-	}
-
-	// Funcion que calcula el tamaño y posicion del elemento clonado para posicionar el Modal
-	function sizeModal(cloned){
-		var winH = $(window).height();
-		var winW = $(window).width();
-		var clonedTop;
-		var menu = $("#BackgroundMenuButton");
-		var element = $(menu).prev();
-		if(cloned.height() < winH){
-			clonedTop = (winH/2)-(cloned.height()/2);
-		}
-		else{
-			clonedTop = 100;
-			$(element).height(winH - $(menu).height() - 200);
-			$(element).css({overflow: "scroll"});
-		}
-		var clonedLeft;
-		if((cloned.width() < winW)) {
-			clonedLeft = (winW/2)-(cloned.width()/2);
-		}
-		else{
-			clonedLeft = 0;
-		}
-		var stylesCloned = {left: clonedLeft, top: 120};
-		cloned.css(stylesCloned);
-	}
-
 	function importJson() {
-		// Se crea un div que contendra la tabla.
-		$("body").append("<div id= 'aryta-cartel' style='width: 50%; padding: 10px; margin: auto auto;'></div>");
-
-		$("#aryta-cartel").append("<h1> Importar configuración </h1> <br/>");
-		$("#aryta-cartel").append("<b>Ingrese el JSON correspondiente: </b>" +
-			"<input type='text' id='dataImport' name='dataImport' size='50' maxlength=''>" +
-			"<br/> <br/> <br/>");
-		$("#aryta-cartel").append("<input id='dataAceptar' type='button' value='Aceptar'/>&nbsp;&nbsp;");
-		$("#aryta-cartel").append("<input id='dataCancel' type='button' value='Cancelar'/>");
-
-		$("#dataCancel").on("click", function(){
-			closeModal($("[id='aryta-cartel']"));
-		});
-		$("#dataAceptar").on("click", function(){
-			var dataImport = $("#dataImport").val();
-			/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
-			if(dataImport.length >= 50 ){
-				var siteImport = JSON.parse(dataImport);
-				if($.isArray(siteImport)) {
-					saveLocalSite(siteImport);
-					siteAdaptation = siteImport;
-					var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-					if (index < 0) {
-						index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-					}
-					if (index > -1) {
-						executePageAdaptation(index);
-					}
-					alert("Se ha importado correctamente la configuración.");
+		var dataImport = prompt("Importar la configuración. Ingrese el JSON correspondiente");
+		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
+		if(dataImport.length >= 50 ){
+			var siteImport = JSON.parse(dataImport);
+			if($.isArray(siteImport)) {
+				saveLocalSite(siteImport);
+				siteAdaptation = siteImport;
+				var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
+				if (index < 0) {
+					index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
 				}
-				else {
-					alert("Los datos ingresados no tienen un formato válido.");
+				if (index > -1) {
+					executePageAdaptation(index);
 				}
-			} else {
+				alert("Se ha importado correctamente la configuración.");
+			}
+			else {
 				alert("Los datos ingresados no tienen un formato válido.");
 			}
-		});
-
-		// Se le asigna los estilos de resaltado al elemento clonado mediante una funcion. En otra funcion separada se le asignan los tamaños.
-		stylesModal($("#aryta-cartel")); // ID del div que contiene al clon y a los botones
-		sizeModal($("#aryta-cartel"));
-
-
-
-		// Se guarda la altura del documento para poder asignarsela al fondo del modal.
-		var altura=$(document).height();
-
-		// Se crea el fondo como hijo del elemento body y se le agregan los estilos asignados al principio del documento y se le asigna la altura del documento.
-		// Se utiliza la funcion fadeTo de Jquery para una transicion que ayudara a la visual.
-		$("body").append("<div id='backgroundModal'></div>");
-		$("#backgroundModal").css(stylesBackground);
-		$("#backgroundModal").fadeTo(400, 0.7);
-		$("#backgroundModal").height(altura);
-
-		// Se le asigna el evento click al fondo para que cuando ocurra se cierre el modal.
-		$("#backgroundModal").on("click", function(){closeModal($("[id='aryta-cartel']"));});
+		} else {
+			alert("Los datos ingresados no tienen un formato válido.");
+		}	
 	}
 
 	function saveLocalSite(site){
@@ -201,11 +95,11 @@
 	function getElements(xpath){
 		/* Recive algo como obj[0].headerLeft */
 		var node = document.evaluate(
-			xpath,
-			document,
-			null,
-			XPathResult.FIRST_ORDERED_NODE_TYPE,
-			null ).singleNodeValue;
+				xpath,
+				document,
+				null,
+				XPathResult.FIRST_ORDERED_NODE_TYPE,
+				null ).singleNodeValue;
 		return node;
 	}
 
@@ -255,24 +149,24 @@
 	function runPage(objectParent, iBody, iHead, pageTemplate){
 		if (objectParent !== null){
 			iBody.html("");
-			if (!("material" === pageTemplate)){
-				iHead.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
-				iHead.append("<script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>");
-				iHead.append("<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>");
-				iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>");
-				iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>");
-				iHead.append("<style>*{min-width: 0px !important;}</style>");
-				iHead.append("<style>.heighBand20{height:20%;}</style>");
-				iHead.append("<style>.height15{height:15%;}</style>");
-				iHead.append("<style>.height20{height:20%;}</style>");
-				iHead.append("<style>.height25{height:25%;}</style>");
-				iHead.append("<style>.height40{height:40%;}</style>");
-				iHead.append("<style>.height55{height:55%;}</style>");
-				iHead.append("<style>.heighBand33{height:33%;}</style>");
-				iHead.append("<style>.widthBand50{width:50%;}</style>");
-				iHead.append("<style>.dashedBottom{border-bottom-style:dashed;}</style>");
-				iHead.append("<style>.dashedRight{border-right-style:dashed;}</style>");
-			}
+            if (!("material" === pageTemplate)){
+                iHead.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+                iHead.append("<script src='https://code.jquery.com/jquery-2.1.4.min.js'></script>");
+                iHead.append("<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js'></script>");
+                iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css'>");
+                iHead.append("<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>");
+                iHead.append("<style>*{min-width: 0px !important;}</style>");
+                iHead.append("<style>.heighBand20{height:20%;}</style>");
+                iHead.append("<style>.height15{height:15%;}</style>");
+                iHead.append("<style>.height20{height:20%;}</style>");
+                iHead.append("<style>.height25{height:25%;}</style>");
+                iHead.append("<style>.height40{height:40%;}</style>");
+                iHead.append("<style>.height55{height:55%;}</style>");
+                iHead.append("<style>.heighBand33{height:33%;}</style>");
+                iHead.append("<style>.widthBand50{width:50%;}</style>");
+                iHead.append("<style>.dashedBottom{border-bottom-style:dashed;}</style>");
+                iHead.append("<style>.dashedRight{border-right-style:dashed;}</style>");
+            }
 			if ("generic" === pageTemplate){
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-1' class='col-xs-4 height20 dashedBottom dashedRight widthBand33'> </div> <div id='header-2' class='col-xs-4 height20 dashedBottom widthBand33'> </div> </div> " +
@@ -293,11 +187,11 @@
 			else if ("mobilePhone" === pageTemplate) {
 				iBody.append("<div class='container-fluid'> " +
 					"<div class='row'> <div id='header-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
-					"<div class='row'> <div id='navigation-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
+                    "<div class='row'> <div id='navigation-0' class='col-xs-12 height15 dashedBottom'></div> </div> " +
 					"<div class='row'> <div id='main-0' class='col-xs-12 height55 dashedBottom'></div> </div> " +
 					"<div class='row'> <div id='footer-0' class='col-xs-12 height15'></div> </div> </div>");
 				importElement(objectParent["header-0"],"#header-0",iBody);
-				importElement(objectParent["navigation-0"],"#navigation-0",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
 				importElement(objectParent["main-0"],"#main-0",iBody);
 				importElement(objectParent["footer-0"],"#footer-0",iBody);
 			}
@@ -308,16 +202,16 @@
 					"<div class='row'> <div id='main-0' class='col-xs-6 height40 dashedBottom dashedRight widthBand50'> </div> <div id='main-1' class='col-xs-6 height40 dashedBottom widthBand50'> </div> </div> " +
 					"<div class='row'> <div id='footer-0' class='col-xs-12 height20'> </div> </div> </div>");
 				importElement(objectParent["header-0"],"#header-0",iBody);
-				importElement(objectParent["navigation-0"],"#navigation-0",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
 				importElement(objectParent["main-0"],"#main-0",iBody);
 				importElement(objectParent["main-1"],"#main-1",iBody);
 				importElement(objectParent["footer-0"],"#footer-0",iBody);
 			}
 			else if ("material" === pageTemplate) {
 				iHead.append("<meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0'>");
-				iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en'>");
-				iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>");
-				iHead.append("<link rel='stylesheet' href='https://code.getmdl.io/1.3.0/material.min.css'>");
+			    iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en'>");
+			    iHead.append("<link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>");
+			    iHead.append("<link rel='stylesheet' href='https://code.getmdl.io/1.3.0/material.min.css'>");
 				iHead.append("<style> body {margin: 0; }</style>");
 				iHead.append("<style> a img{border: 0px; }</style>");
 				iHead.append("<style> ::-moz-selection {background-color: #6ab344; color: #fff; }</style>");
@@ -354,54 +248,53 @@
 				iHead.append("<style> .android-footer .mdl-mega-footer--right-section a .material-icons {position: relative; top: 6px; }</style>");
 				iHead.append("<style> .android-link-menu:hover {cursor: pointer; }</style>");
 				iHead.append("<style> @media (max-width: 700px) {"+
-					".android-navigation-container {display: none; }"+
-					".android-title {display: none !important; }"+
-					".android-mobile-title {display: block !important; position: absolute; left: calc(50% - 70px); top: 12px; transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1); }"+
-					".android-more-button {display: none; }"+
-					".android-footer .mdl-mega-footer--bottom-section {display: none; }"+
-					"}</style>");
+				  ".android-navigation-container {display: none; }"+
+				  ".android-title {display: none !important; }"+
+				  ".android-mobile-title {display: block !important; position: absolute; left: calc(50% - 70px); top: 12px; transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1); }"+
+				  ".android-more-button {display: none; }"+
+				  ".android-footer .mdl-mega-footer--bottom-section {display: none; }"+
+				"}</style>");
 				iHead.append("<style> #view-source {position: fixed; display: block; right: 0; bottom: 0; margin-right: 40px; margin-bottom: 40px; z-index: 900; } </style>");
 				iBody.append("<div class='mdl-layout mdl-js-layout mdl-layout--fixed-header'><div class='android-header mdl-layout__header mdl-layout__header--waterfall is-casting-shadow is-compact'>"+
-					"<div aria-expanded='false' role='button' tabindex='0' class='mdl-layout__drawer-button' id='drwrbtn'><i class='material-icons'></i></div> <div class='mdl-layout__header-row'>"+
-					"<span class='android-title mdl-layout-title'><div id='header-0' style='color: #8bc34a;'></div></span><div class='android-header-spacer mdl-layout-spacer'></div>"+
-					"<div class='android-navigation-container'><nav class='android-navigation mdl-navigation' id='navigation-0'></nav></div>"+
-					"<span class='android-mobile-title mdl-layout-title'><div id='header-1'></div></span></div></div>"+
-					"<div id='drwr' class='android-drawer mdl-layout__drawer' aria-hidden='true'><span class='mdl-layout-title'><div id='header-2'></div></span><nav class='mdl-navigation' id='navigation-1'></nav></div>"+
-					"<div class='android-content mdl-layout__content'><a name='top'></a><div class='main-content' id='main-0'></div><footer class='android-footer mdl-mega-footer'>"+
-					"<div class='mdl-mega-footer--top-section'><div class='mdl-mega-footer--right-section'><a class='mdl-typography--font-light' href='#top'>Volver Arriba<i class='material-icons'>expand_less</i></a></div></div>"+
-					"<div class='mdl-mega-footer--middle-section mdl-typography--font-light' id='footer-0'></div>"+
-					"<div class='mdl-mega-footer--bottom-section' id='navigation-2'></div></footer></div>"+
-					"<div class='mdl-layout__obfuscator' id='bfsctr'></div></div>"+
-					"<a href='' target='_blank' id='view-source' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast'>Ver Original</a>");
+                "<div aria-expanded='false' role='button' tabindex='0' class='mdl-layout__drawer-button' id='drwrbtn'><i class='material-icons'></i></div> <div class='mdl-layout__header-row'>"+
+				"<span class='android-title mdl-layout-title'><div id='header-0' style='color: #8bc34a;'></div></span><div class='android-header-spacer mdl-layout-spacer'></div>"+
+				"<div class='android-navigation-container'><nav class='android-navigation mdl-navigation' id='navigation-0'></nav></div>"+
+				"<span class='android-mobile-title mdl-layout-title'><div id='header-1'></div></span></div></div>"+
+				"<div id='drwr' class='android-drawer mdl-layout__drawer' aria-hidden='true'><span class='mdl-layout-title'><div id='header-2'></div></span><nav class='mdl-navigation' id='navigation-1'></nav></div>"+
+				"<div class='android-content mdl-layout__content'><a name='top'></a><div class='main-content' id='main-0'></div><footer class='android-footer mdl-mega-footer'>"+
+				"<div class='mdl-mega-footer--top-section'><div class='mdl-mega-footer--right-section'><a class='mdl-typography--font-light' href='#top'>Volver Arriba<i class='material-icons'>expand_less</i></a></div></div>"+
+				"<div class='mdl-mega-footer--middle-section mdl-typography--font-light' id='footer-0'></div>"+
+				"<div class='mdl-mega-footer--bottom-section' id='navigation-2'></div></footer></div>"+
+                "<div class='mdl-layout__obfuscator' id='bfsctr'></div></div>"+
+				"<a href='' target='_blank' id='view-source' class='mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-color--accent mdl-color-text--accent-contrast'>Ver Original</a>");
 				importElement(objectParent["header-0"],"#header-0",iBody);
 				importElement(objectParent["header-0"],"#header-1",iBody);
 				importElement(objectParent["header-0"],"#header-2",iBody);
-				importElement(objectParent["navigation-0"],"#navigation-0",iBody);
-				importElement(objectParent["navigation-0"],"#navigation-1",iBody);
-				importElement(objectParent["navigation-0"],"#navigation-2",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-0",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-1",iBody);
+                importElement(objectParent["navigation-0"],"#navigation-2",iBody);
 				importElement(objectParent["main-0"],"#main-0",iBody);
 				importElement(objectParent["footer-0"],"#footer-0",iBody);
 				iBody.append("<script type='text/javascript'>"+
-					"var drawerButton = document.getElementById('drwrbtn');"+
-					"var drawer = document.getElementById('drwr');"+
-					"var obfuscator = document.getElementById('bfsctr');"+
-					"if ( drawerButton != null && drawer != null && obfuscator != null ) {"+
-					"drawerButton.onclick = function (evt) {"+
-					"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); };"+
-					"toggleDrawer = function () {"+
-					"if (drawer.getAttribute('aria-hidden') == 'true') {obfuscator.className = 'mdl-layout__obfuscator is-visible'; drawer.className = 'android-drawer mdl-layout__drawer is-visible'; drawer.setAttribute('aria-hidden', 'false'); drawerButton.setAttribute('aria-expanded', 'true');"+
-					"} else {obfuscator.className = 'mdl-layout__obfuscator'; drawer.className = 'android-drawer mdl-layout__drawer'; drawer.setAttribute('aria-hidden', 'true'); drawerButton.setAttribute('aria-expanded', 'false'); } };"+
-					"obfuscator.onclick = function (evt) {"+
-					"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); }; "+
-					"};"+
-					"</script>");
+				"var drawerButton = document.getElementById('drwrbtn');"+
+				"var drawer = document.getElementById('drwr');"+
+				"var obfuscator = document.getElementById('bfsctr');"+
+				"if ( drawerButton != null && drawer != null && obfuscator != null ) {"+
+				"drawerButton.onclick = function (evt) {"+
+				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); };"+
+				"toggleDrawer = function () {"+
+				"if (drawer.getAttribute('aria-hidden') == 'true') {obfuscator.className = 'mdl-layout__obfuscator is-visible'; drawer.className = 'android-drawer mdl-layout__drawer is-visible'; drawer.setAttribute('aria-hidden', 'false'); drawerButton.setAttribute('aria-expanded', 'true');"+
+				"} else {obfuscator.className = 'mdl-layout__obfuscator'; drawer.className = 'android-drawer mdl-layout__drawer'; drawer.setAttribute('aria-hidden', 'true'); drawerButton.setAttribute('aria-expanded', 'false'); } };"+
+				"obfuscator.onclick = function (evt) {"+
+				"if (evt && evt.type === 'keydown') {if (evt.keyCode === this.Keycodes_.SPACE || evt.keyCode === this.Keycodes_.ENTER) {evt.preventDefault(); } else {return; } } toggleDrawer(); }; "+
+				"};"+
+				"</script>");
 			}
 			else {
 				alert("Información del template incompleta.");
 			}
 		}
 	}
-
 	// Funcion para aplicar un patron en el iframe de previsualizacion
 	function importElement(source, destination, iBody){
 		var divElement = iBody.find(destination);
@@ -427,6 +320,26 @@
 			applyPattern4(source.xpath, divElement, iBody);
 		}
 	}
+
+	// Funcion para aplicar el patron menu material
+	function applyPattern4(xpath, divElement, iBody){
+		if (xpath) {
+			var dwrap = document.createElement("div");
+			$(dwrap).html(xpath);
+			var links = $(dwrap).find("a");
+			$.each($(links), function(i, e){
+				if (divElement[0].className == "mdl-mega-footer--bottom-section"){
+					e.className += " android-link mdl-typography--font-light";
+				} else if (divElement[0].className == "android-navigation mdl-navigation"){
+					e.className += " mdl-navigation__link mdl-typography--text-uppercase";
+				} else if (divElement[0].className == "mdl-navigation"){
+					e.className += " mdl-navigation__link";
+				}
+				divElement.append($(e));
+			});
+		}
+	}
+
 
 	function applyPattern3(divElement, html){	
 		var css = "<style class='patterCss3'>" +
@@ -457,34 +370,15 @@
 		divElement.append(html);
 	}
 
-	// Funcion para aplicar el patron menu material
-	function applyPattern4(xpath, divElement, iBody){
-		if (xpath) {
-			var dwrap = document.createElement("div");
-			$(dwrap).html(xpath);
-			var links = $(dwrap).find("a");
-			$.each($(links), function(i, e){
-				if (divElement[0].className == "mdl-mega-footer--bottom-section"){
-					e.className += " android-link mdl-typography--font-light";
-				} else if (divElement[0].className == "android-navigation mdl-navigation"){
-					e.className += " mdl-navigation__link mdl-typography--text-uppercase";
-				} else if (divElement[0].className == "mdl-navigation"){
-					e.className += " mdl-navigation__link";
-				}
-				divElement.append($(e));
-			});
-		}
-	}
-
 	function applyPattern1(xpath, divElement, iBody){
 		if (xpath) {
 			var dwrap = document.createElement("div");
 			$(dwrap).html(xpath);
 			var links = $(dwrap).find("a");
 			divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> " +
-				"<button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> " +
-				"<span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  " +
-				"<div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> "); 
+					"<button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> " +
+					"<span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  " +
+					"<div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> "); 
 			$.each($(links), function(i, e){
 				var newLinks = document.createElement("li");
 				$(newLinks).append($(e));
