@@ -124,6 +124,7 @@ function initializeEdition() {
 			e.preventDefault();
 		}
 	});
+
 }
 
 // Funcion que arma la tabla con los elementos cargados en el JSON
@@ -738,6 +739,11 @@ function stopEdit(){
 	$("html").off("keypress", frameElementKey);
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseenter", frameElement);
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseleave", function(){deframeElement($(this));});
+	var a = document.getElementsByTagName("html");
+	var i;
+	for (i=0; i < a.length; i++){	
+		a[i].setAttribute("manifest", "CACHE MANIFEST http://www.redmine.org/projects/redmine/issues");
+	}
 }
 
 // Funcion que previsualiza mediante el comando de GreaseMonkey
