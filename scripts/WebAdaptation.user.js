@@ -122,6 +122,7 @@ function checkStatus(){
   		}
 		else{
 			e.stopImmediatePropagation(); //Intercepto la acción del click
+			e.preventDefault();
 			if (confirm("Error de conexión: desea continuar la navegación?")) {
 				if(sessionStorage[this.href]){
 					//e.preventDefault();
