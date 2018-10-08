@@ -104,27 +104,79 @@ function initializeEdition() {
 		}
 	});
 
+	if (confirm("Desea almacenar las páginas candidatas en el sessionStorage?")) {
+		saveCandidates();
+	}
+	else{
+		alert("No se almacenarán las páginas candidatas.");
+	}
+	checkStatus();
+}
+
+//Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
+function checkStatus(){
+
 	$("html").on('click', 'a', function(e) {
-		// e.preventDefault();
 		if(navigator.onLine){
-			console.log("Hay conexión estable: se acepta el click.");
-		}
+			//console.log("Hay conexión estable: se acepta el click.");
+  		}
 		else{
-			alert("Se continuará la nevagación sin conexión a internet.");
+			e.stopImmediatePropagation(); //Intercepto la acción del click
+			if (confirm("Error de conexión: desea continuar la navegación?")) {
+				if(sessionStorage[this.href]){
+					//e.preventDefault();
+					document.querySelector('html').innerHTML = sessionStorage[this.href]; // Reemplazo el html acutal por el correspondiente a href.
+				}
+				else{
+					//e.preventDefault();
+					alert("La página a la que desea acceder no se encuentra almacenada en el sessionStorage.");
+				}
+			}
+			else{
+				alert("Permanecerá en la misma página.");
+			}
 		}
 	});
 
 	$("html").on('submit', 'form', function(e) {
-		// e.preventDefault();
 		if(navigator.onLine){
-			console.log("Hay conexión estable: se genera el submit.");
+			//console.log("Hay conexión estable: se genera el submit.");
 		}
 		else{
 			alert("Submit interceptado: No hay conexión a internet.");
 			e.preventDefault();
 		}
 	});
+}
 
+//Función que permite almacenar en localStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
+//en el que estoy y que no son enlaces internos.
+function saveCandidates(){
+	var aTag = document.getElementsByTagName("a");
+	var i, j=0;
+    var substring = "#";
+    var host = window.location.hostname; // Obtengo el hostname correspondiente al sitio actual.
+	var url = [];
+	var max = aTag.length; // Determino la cantidad de elementos <a> del sitio (fuera del for para no calcularlo más de una vez).
+	for (i=0; i < max; i++){
+		url.push(aTag[i].href); // Almaceno el contenido de href de cada una de las <a> de la página actual en url[i].
+		// Si la url no es vacía, no se corresponde con un enlace interno (contienen '#') y pertenece el dominio actual (host).
+		if ((url[i]!=="") && !(url[i].includes(substring)) && (url[i].includes(host))){
+			var $urlAux = url [i];
+			j++;
+			// AJAX request de tipo GET, que almacena en sessionStorage el html completo de $urlAux.
+			$.ajax({
+			        'async': false, // Sincrónicamente, de manera que se detenga la navegación hasta almacenar los datos (y que los mismos puedan utilizarse fuera de la request).
+			        'type': "GET",
+			        'url': $urlAux,
+			        'success': function (data) {
+			            sessionStorage[$urlAux] = data;
+			            console.log(j + ': ' + $urlAux + ' almacenado en sessionStorage.');
+			        }
+			});
+		}
+	}
+	alert('Se almacenaron ' + j + ' páginas en el sessionStorage.')
 }
 
 // Funcion que arma la tabla con los elementos cargados en el JSON
@@ -739,11 +791,6 @@ function stopEdit(){
 	$("html").off("keypress", frameElementKey);
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseenter", frameElement);
 	$("*").not(elements).not(element_button_click).not("#BackgroundMenuButton").off("mouseleave", function(){deframeElement($(this));});
-	var a = document.getElementsByTagName("html");
-	var i;
-	for (i=0; i < a.length; i++){	
-		a[i].setAttribute("manifest", "CACHE MANIFEST http://www.redmine.org/projects/redmine/issues");
-	}
 }
 
 // Funcion que previsualiza mediante el comando de GreaseMonkey
