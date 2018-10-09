@@ -150,7 +150,7 @@ function checkStatus(){
 	});
 }
 
-//Función que permite almacenar en localStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
+//Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
 //en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
 function saveCandidates(){
 	var aTag = document.getElementsByTagName("a");
