@@ -151,12 +151,12 @@ function checkStatus(){
 }
 
 //Función que permite almacenar en localStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
-//en el que estoy y que no son enlaces internos.
+//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
 function saveCandidates(){
 	var aTag = document.getElementsByTagName("a");
 	var i, j=0;
     var substring = "#";
-    var host = window.location.hostname; // Obtengo el hostname correspondiente al sitio actual.
+    var host = location.hostname; // Obtengo el hostname correspondiente al sitio actual.
 	var url = [];
 	var max = aTag.length; // Determino la cantidad de elementos <a> del sitio (fuera del for para no calcularlo más de una vez).
 	for (i=0; i < max; i++){
@@ -177,6 +177,10 @@ function saveCandidates(){
 			});
 		}
 	}
+	//Guardo la página actual
+	j++;
+	sessionStorage[location.href] = document.querySelector('html');
+	console.log(j + ' (página actual) : ' + location.href + ' almacenado en sessionStorage.');
 	alert('Se almacenaron ' + j + ' páginas en el sessionStorage.')
 }
 
