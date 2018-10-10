@@ -24,8 +24,8 @@ GM_registerMenuCommand('Adaptar página', previewPage, "A");
 GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
 GM_registerMenuCommand('Importar configuración', importJson, "I");
 GM_registerMenuCommand('Exportar configuración', exportJson, "X");
-GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "F");
-GM_registerMenuCommand('Listado de adaptaciones disponibles', importJsonFromCatalog, "J");
+GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "Q");
+GM_registerMenuCommand('Importar configuración del Catálogo', importJsonFromCatalog, "W");
 
 //-----------------------------------------------------------
 // VARIABLES GLOBALES
@@ -363,14 +363,58 @@ function exportJsonToCatalog() {
 		postReqCatalog.open("POST", urlCatalog, false);
 		postReqCatalog.setRequestHeader("Content-Type", "application/json");
 		var data = JSON.stringify(siteAdaptation);
-		alert("Se está por POSTear: " + data);
+		alert("Se guardará la siguiente configuración: " + data);
 		postReqCatalog.send(data);
 		if (postReqCatalog.status == 200 || postReqCatalog.status == 400){
-			alert(postReqCatalog.responseText);
+			alert("Respuesta del catálogo: " + postReqCatalog.responseText);
 		}
 	}
 }
 
+//Función para evaluar si un string contiene números
+function hasNumber(myString) {
+  return /\d/.test(myString);
+}
+
+//Función que permite al usuario elegir 1 adaptación de entre varias disponibles en el catálogo 
+function optionsAvailable(response){
+    var ok = false;
+    var options = response.split(",");
+    while (!ok){
+        var userChoice = prompt("Elija un ID de los siguientes: " + response);
+        if (userChoice != null){
+            if(options.indexOf(userChoice) > -1){
+                alert("Se cargará la transformación con ID " + userChoice);
+                var pageUrl = window.location.href;
+                var dataReq = new XMLHttpRequest();
+                var catalogUrl = "http://localhost:3000/api/augmentations/" + userChoice;
+                dataReq.open("GET", catalogUrl, false);
+                dataReq.setRequestHeader("Content-Type", "application/json");
+                dataReq.send();
+                if (dataReq.status == 200 || dataReq.status == 400){
+                    var dataResponse = dataReq.responseText;
+                }
+                var dataJson = JSON.parse(dataResponse);
+                if (Array.isArray(dataJson)){
+                    delLocal();
+                    saveLocalSite(dataJson);
+                    initialize();
+                    alert("Se ha importado exitosamente la configuración.");
+                    actualizarIFrame();
+                }
+                ok = true;
+            }
+            else{
+                alert("Valor incorrecto.");
+            }
+        }
+        else{
+            ok = true;
+        }
+    }
+}
+
+//Función que permite traer una adaptación del catálogo
 function importJsonFromCatalog(){
 	var myUrl = window.location.href;
 	var getReqCatalog = new XMLHttpRequest();
@@ -379,9 +423,30 @@ function importJsonFromCatalog(){
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
     getReqCatalog.send();
 		if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
-            var jsonResponse = getReqCatalog.responseText;
-			alert(jsonResponse);
+            var xhrResponse = getReqCatalog.responseText;
 		}
+    var jsonResponse = JSON.parse(xhrResponse);
+
+    /*Lógica para determinar que respondió el catálogo*/
+
+    if (jsonResponse.includes("No hay transformaciones") || jsonResponse.includes("URL necesaria")){
+        alert("Respuesta del catálogo: " + jsonResponse);
+    }
+    else{
+        if (hasNumber(jsonResponse)){
+            alert("Hay más de una opción disponible para este sitio con los ID: " + jsonResponse);
+            optionsAvailable(jsonResponse+'');
+        }
+        else{
+            if (Array.isArray(jsonResponse)){
+                delLocal();
+                saveLocalSite(jsonResponse);
+                initialize();
+                alert("Se ha importado exitosamente la configuración.");
+                actualizarIFrame();
+            }
+        }
+    }
 }
 
 // Funcion que se encarga de abrir el div modal y su fondo. Recibe un parametro que sera el elemento a resaltar. (Ubicar elemento seleccionado)
