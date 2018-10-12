@@ -19,7 +19,7 @@
 		$('head script[src*="jquery"]').remove();
 	}
 
-	GM_registerMenuCommand('Importar configuración', importJson);
+	GM_registerMenuCommand('Importar configuración desde catálogo', importJson);
 	GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
 
 	var siteAdaptation = [];
@@ -51,11 +51,31 @@
 	}
 
 	function importJson() {
-		var dataImport = prompt("Importar la configuración. Ingrese el JSON correspondiente");
+		var myUrl = window.location.href;
+		var getReqCatalog = new XMLHttpRequest();
+		var urlCatalog = "http://localhost:3000/api/augmentations/?url=" + myUrl;
+		getReqCatalog.open("GET", urlCatalog, false);
+		getReqCatalog.setRequestHeader("Content-Type", "application/json");
+		getReqCatalog.send();
+		if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
+			var xhrResponse = getReqCatalog.responseText;
+		}
 		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
-		if(dataImport.length >= 50 ){
-			var siteImport = JSON.parse(dataImport);
-			if($.isArray(siteImport)) {
+		var siteImport = JSON.parse(xhrResponse);
+		if (/\d/.test(siteImport)){
+			var options = xhrResponse.split(","); // o siteImport
+		    getReqCatalog = new XMLHttpRequest();
+		    urlCatalog = "http://localhost:3000/api/augmentations/" + options[options.length - 1];
+		    getReqCatalog.open("GET", urlCatalog, false);
+		    getReqCatalog.setRequestHeader("Content-Type", "application/json");
+		    getReqCatalog.send();
+			if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
+				xhrResponse = getReqCatalog.responseText;
+			}
+		}
+		if(xhrResponse.length >= 50 ){
+			siteImport = JSON.parse(xhrResponse);
+			if(Array.isArray(siteImport)) {
 				saveLocalSite(siteImport);
 				siteAdaptation = siteImport;
 				var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
@@ -65,13 +85,13 @@
 				if (index > -1) {
 					executePageAdaptation(index);
 				}
-				alert("Se ha importado correctamente la configuración.");
+				//alert("Se ha importado correctamente la configuración.");
 			}
 			else {
-				alert("Los datos ingresados no tienen un formato válido.");
+				//alert("Los datos ingresados no tienen un formato válido.");
 			}
 		} else {
-			alert("Los datos ingresados no tienen un formato válido.");
+			//alert("Los datos ingresados no tienen un formato válido.");
 		}	
 	}
 
@@ -80,7 +100,7 @@
 			localStorage.setItem("siteAdaptation", JSON.stringify(site));
 		}
 		else {
-			alert(localStoragedError);
+			//alert(localStoragedError);
 		}
 	}
 
@@ -88,7 +108,7 @@
 		if (typeof(Storage) !== "undefined") {
 			return JSON.parse(localStorage.getItem("siteAdaptation"));
 		} else {
-			alert(localStoragedError);
+			//alert(localStoragedError);
 		}
 	}
 
@@ -139,7 +159,7 @@
 				object[key] = {"xpath":elem,"pattern":value["pattern"]};
 		});
 		if (error == true){
-			alert(message);
+			//alert(message);
 			return null;
 		}
 		else
@@ -291,7 +311,7 @@
 				"</script>");
 			}
 			else {
-				alert("Información del template incompleta.");
+				//alert("Información del template incompleta.");
 			}
 		}
 	}
@@ -417,7 +437,7 @@
 			siteAdaptation = [];
 		}
 		else {
-			alert(localStoragedError);
+			//alert(localStoragedError);
 		}
 	}
 
