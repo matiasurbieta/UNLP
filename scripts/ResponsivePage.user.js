@@ -85,13 +85,13 @@
 				if (index > -1) {
 					executePageAdaptation(index);
 				}
-				//alert("Se ha importado correctamente la configuración.");
+				alert("Se ha importado correctamente la configuración.");
 			}
 			else {
-				//alert("Los datos ingresados no tienen un formato válido.");
+				alert("Los datos ingresados no tienen un formato válido.");
 			}
 		} else {
-			//alert("Los datos ingresados no tienen un formato válido.");
+			alert("Los datos ingresados no tienen un formato válido.");
 		}	
 	}
 
@@ -100,7 +100,7 @@
 			localStorage.setItem("siteAdaptation", JSON.stringify(site));
 		}
 		else {
-			//alert(localStoragedError);
+			alert(localStoragedError);
 		}
 	}
 
@@ -108,7 +108,7 @@
 		if (typeof(Storage) !== "undefined") {
 			return JSON.parse(localStorage.getItem("siteAdaptation"));
 		} else {
-			//alert(localStoragedError);
+			alert(localStoragedError);
 		}
 	}
 
@@ -159,7 +159,7 @@
 				object[key] = {"xpath":elem,"pattern":value["pattern"]};
 		});
 		if (error == true){
-			//alert(message);
+			alert(message);
 			return null;
 		}
 		else
@@ -437,7 +437,7 @@
 			siteAdaptation = [];
 		}
 		else {
-			//alert(localStoragedError);
+			alert(localStoragedError);
 		}
 	}
 
