@@ -129,12 +129,14 @@
 		var myUrl = window.location.href;
 		alert("Start");
 		var getReqCatalog = new XMLHttpRequest();
-		alert(getReqCatalog+"");
+		alert(getReqCatalog);
 		var urlCatalog = "http://192.168.0.21:3000/api/augmentations/?url=" + myUrl;
 		alert(urlCatalog+"");
 		getReqCatalog.open("GET", urlCatalog, false);
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
+		alert("presend: "+ getReqCatalog.status);
 		getReqCatalog.send();
+		alert("postsend: "+ getReqCatalog.status);
 		if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
 			var xhrResponse = getReqCatalog.responseText;
 		}
