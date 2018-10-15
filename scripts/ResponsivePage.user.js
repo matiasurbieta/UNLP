@@ -138,7 +138,7 @@
 		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
 		var siteImport = JSON.parse(xhrResponse);
         if (siteImport.includes("No hay transformaciones") || siteImport.includes("URL necesaria")){
-            //alert("Respuesta del catálogo: " + siteImport);
+            alert("" + siteImport);
         } else{
             if (/\d/.test(siteImport)){
             siteImport+= '';
