@@ -25,10 +25,10 @@
 	var siteAdaptation = [];
 	var pageUrl = window.location.href;
 	var localStoragedError = "El navegador Web no tiene soporte de almacenamiento Local Storage.";
-	
+
 	initialize();
 
-	function initialize() {	
+	function initialize() {
 		var siteAdaptationStorage = getLocalSite();
 		if (siteAdaptationStorage) {
 			siteAdaptation = siteAdaptationStorage;
@@ -46,11 +46,11 @@
 			saveCandidates();
 		}
 		else{
-			alert("No se almacenarán las páginas candidatas.");
+			//alert("No se almacenarán las páginas candidatas.");
 		}
 		checkStatus();
 	}
-	
+
 	 //Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
 	function checkStatus(){
 	 	$("html").on('click', 'a', function(e) {
@@ -85,7 +85,7 @@
 			}
 		});
 	}
-	 //Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
+	 //Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio
 	//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
 	function saveCandidates(){
 		var aTag = document.getElementsByTagName("a");
@@ -137,8 +137,12 @@
 		}
 		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
 		var siteImport = JSON.parse(xhrResponse);
-		if (/\d/.test(siteImport)){
-			var options = xhrResponse.split(","); // o siteImport
+        if (siteImport.includes("No hay transformaciones") || siteImport.includes("URL necesaria")){
+            //alert("Respuesta del catálogo: " + siteImport);
+        } else{
+            if (/\d/.test(siteImport)){
+            siteImport+= '';
+			var options = siteImport.split(","); // o siteImport
 		    getReqCatalog = new XMLHttpRequest();
 		    urlCatalog = "http://localhost:3000/api/augmentations/" + options[options.length - 1];
 		    getReqCatalog.open("GET", urlCatalog, false);
@@ -148,26 +152,23 @@
 				xhrResponse = getReqCatalog.responseText;
 			}
 		}
-		if(xhrResponse.length >= 50 ){
-			siteImport = JSON.parse(xhrResponse);
-			if(Array.isArray(siteImport)) {
-				saveLocalSite(siteImport);
-				siteAdaptation = siteImport;
-				var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-				if (index < 0) {
-					index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-				}
-				if (index > -1) {
-					executePageAdaptation(index);
-				}
-				alert("Se ha importado correctamente la configuración.");
-			}
-			else {
-				alert("Los datos ingresados no tienen un formato válido.");
-			}
-		} else {
-			alert("Los datos ingresados no tienen un formato válido.");
-		}	
+        siteImport = JSON.parse(xhrResponse);
+        if(Array.isArray(siteImport)) {
+            saveLocalSite(siteImport);
+            siteAdaptation = siteImport;
+            var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
+            if (index < 0) {
+                index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
+            }
+            if (index > -1) {
+                executePageAdaptation(index);
+            }
+            alert("Se ha importado correctamente la configuración.");
+        }
+        else {
+            alert("Los datos ingresados no tienen un formato válido.");
+        }
+        }
 	}
 
 	function saveLocalSite(site){
@@ -436,29 +437,29 @@
 	}
 
 
-	function applyPattern3(divElement, html){	
+	function applyPattern3(divElement, html){
 		var css = "<style class='patterCss3'>" +
 		"@media screen and (max-width:721px) { " +
-		"form > div { margin: 0 0 15px 0; } " + 
-		"form > div > label, " + 
-		"legend { " + 
-		"width: 100%; " + 
-		"float: none; " + 
-		"margin: 0 0 5px 0;" +			
-		"} " + 
-		"form > div > div, " + 
-		"form > div > fieldset > div { " + 
-		"width: 100%; " + 
-		"float: none;" + 
-		"} " + 
-		"input[type=text], " + 
-		"input[type=email], " + 
-		"input[type=url], " + 
-		"input[type=password], " + 
-		"textarea, " + 
-		"select { " + 
-		"width: 100%;" + 
-		"} " + 
+		"form > div { margin: 0 0 15px 0; } " +
+		"form > div > label, " +
+		"legend { " +
+		"width: 100%; " +
+		"float: none; " +
+		"margin: 0 0 5px 0;" +
+		"} " +
+		"form > div > div, " +
+		"form > div > fieldset > div { " +
+		"width: 100%; " +
+		"float: none;" +
+		"} " +
+		"input[type=text], " +
+		"input[type=email], " +
+		"input[type=url], " +
+		"input[type=password], " +
+		"textarea, " +
+		"select { " +
+		"width: 100%;" +
+		"} " +
 		"}" +
 		"</style>";
 		divElement.append(css);
@@ -473,7 +474,7 @@
 			divElement.append("<nav class='navbar navbar-default' role='navigation'> <div class='navbar-header'> " +
 					"<button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'> " +
 					"<span class='sr-only'>Toggle navigation</span><span class='icon-bar'></span><span class='icon-bar'></span><span class='icon-bar'></span></button> </div>  " +
-					"<div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> "); 
+					"<div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'> <ul id='menu-nav' class='nav navbar-nav'>  </ul> </div>  </nav> ");
 			$.each($(links), function(i, e){
 				var newLinks = document.createElement("li");
 				$(newLinks).append($(e));
@@ -488,7 +489,7 @@
 		}
 		var searchUrl = normalizeUrl(searchTerm);
 		for(var i = 0, len = myArray.length; i < len; i++) {
-			if (myArray[i]["urlCompareType"] == "contain" && searchUrl.includes(normalizeUrl(myArray[i][property]))) 
+			if (myArray[i]["urlCompareType"] == "contain" && searchUrl.includes(normalizeUrl(myArray[i][property])))
 				return i;
 		}
 		return -1;
@@ -500,7 +501,7 @@
 		}
 		var searchUrl = normalizeUrl(searchTerm);
 		for(var i = 0, len = myArray.length; i < len; i++) {
-			if (myArray[i]["urlCompareType"] == "equal" && normalizeUrl(myArray[i][property]) === searchUrl) 
+			if (myArray[i]["urlCompareType"] == "equal" && normalizeUrl(myArray[i][property]) === searchUrl)
 				return i;
 		}
 		return -1;
@@ -510,6 +511,7 @@
 		if (typeof(Storage) !== "undefined") {
 			localStorage.removeItem("siteAdaptation");
 			siteAdaptation = [];
+            location.reload();
 		}
 		else {
 			alert(localStoragedError);
