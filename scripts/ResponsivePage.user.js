@@ -21,7 +21,7 @@
 
 	GM_registerMenuCommand('Importar configuración desde catálogo', importJson);
 	GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
-	GM_registerMenuCommand('Almacenar páginas candidatas en sessionStorage', saveCandidates;
+	GM_registerMenuCommand('Almacenar páginas candidatas en sessionStorage', saveCandidates);
 
 
 	var siteAdaptation = [];
