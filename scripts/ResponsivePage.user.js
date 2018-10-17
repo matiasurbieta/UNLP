@@ -124,60 +124,49 @@
 
 	function importJson() {
 		var myUrl = window.location.href;
-		        window.fetch("http://localhost:3000/api/augmentations/?url=" + myUrl)
-				.then(function(response) {
-		            response.json().then(function(data) {
-		                // data es el resultado
-		                console.log(data);
-		                console.log(JSON.stringify(data));
-		                if (data.includes("No hay transformaciones") || data.includes("URL necesaria")){
-		                    alert(JSON.stringify(data));
-		                }else{
-		                	if (/\d/.test(data)){
-		                		var options = JSON.stringify(data).split(",");
-		                		window.fetch("http://localhost:3000/api/augmentations/" + options[options.length - 1])
-		                		.then(function(response){
-		                			response.json().then(function(data){
-		                				if(Array.isArray(data)) {
-		                				    saveLocalSite(data);
-		                				    siteAdaptation = data;
-		                				    var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-		                				    if (index < 0) {
-		                				        index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-		                				    }
-		                				    if (index > -1) {
-		                				        executePageAdaptation(index);
-		                				    }
-		                				    alert("Se ha importado correctamente la configuración.");
-		                				}else {
-		                				    alert("Los datos ingresados no tienen un formato válido.");
-		                				}
-		                			});
-		                		}).catch(function(err){
-		                			alert("Algo salió mal: " + err);
-		                		});
-		                	}else{
-		                		if(Array.isArray(data)) {
-		                		    saveLocalSite(data);
-		                		    siteAdaptation = data;
-		                		    var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-		                		    if (index < 0) {
-		                		        index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-		                		    }
-		                		    if (index > -1) {
-		                		        executePageAdaptation(index);
-		                		    }
-		                		    alert("Se ha importado correctamente la configuración.");
-		                		}else {
-		                		    alert("Los datos ingresados no tienen un formato válido.");
-		                		}
-		                	}
-		                }
-
-		            });
-				}).catch(function(err) {
-					alert("Algo salió mal: " + err);
-				});
+		var getReqCatalog = new XMLHttpRequest();
+		var urlCatalog = "http://192.168.43.33:3000/api/augmentations/?url=" + myUrl;
+		getReqCatalog.open("GET", urlCatalog, false);
+		getReqCatalog.setRequestHeader("Content-Type", "application/json");
+		getReqCatalog.send();
+		if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
+			var xhrResponse = getReqCatalog.responseText;
+			console.log(xhrResponse);
+		}
+		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
+		var siteImport = JSON.parse(xhrResponse);
+        if (siteImport.includes("No hay transformaciones") || siteImport.includes("URL necesaria")){
+            alert("" + siteImport);
+        } else{
+            if (/\d/.test(siteImport)){
+	            siteImport+= '';
+				var options = siteImport.split(","); // o siteImport
+			    getReqCatalog = new XMLHttpRequest();
+			    urlCatalog = "http://192.168.43.33:3000/api/augmentations/" + options[options.length - 1];
+			    getReqCatalog.open("GET", urlCatalog, false);
+			    getReqCatalog.setRequestHeader("Content-Type", "application/json");
+			    getReqCatalog.send();
+				if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
+					xhrResponse = getReqCatalog.responseText;
+				}
+			}
+	        siteImport = JSON.parse(xhrResponse);
+	        if(Array.isArray(siteImport)) {
+	            saveLocalSite(siteImport);
+	            siteAdaptation = siteImport;
+	            var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
+	            if (index < 0) {
+	                index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
+	            }
+	            if (index > -1) {
+	                executePageAdaptation(index);
+	            }
+	            alert("Se ha importado correctamente la configuración.");
+	        }
+	        else {
+	            alert("Los datos ingresados no tienen un formato válido.");
+	        }
+        }
 	}
 
 	function saveLocalSite(site){
