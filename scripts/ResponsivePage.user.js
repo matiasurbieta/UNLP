@@ -125,7 +125,7 @@
 	function importJson() {
 		var myUrl = window.location.href;
 		var getReqCatalog = new XMLHttpRequest();
-		var urlCatalog = "http://192.168.0.221:3000/api/augmentations/?url=" + myUrl;
+		var urlCatalog = "http://192.168.43.33:3000/api/augmentations/?url=" + myUrl;
 		getReqCatalog.open("GET", urlCatalog, false);
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
 		getReqCatalog.send();
@@ -141,7 +141,7 @@
 	            siteImport+= '';
 				var options = siteImport.split(","); // o siteImport
 			    getReqCatalog = new XMLHttpRequest();
-			    urlCatalog = "http://192.168.0.221:3000/api/augmentations/" + options[options.length - 1];
+			    urlCatalog = "http://192.168.43.33:3000/api/augmentations/" + options[options.length - 1];
 			    getReqCatalog.open("GET", urlCatalog, false);
 			    getReqCatalog.setRequestHeader("Content-Type", "application/json");
 			    getReqCatalog.send();
