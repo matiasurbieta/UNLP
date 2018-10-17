@@ -125,7 +125,7 @@
 	function importJson() {
 		var myUrl = window.location.href;
 		var getReqCatalog = new XMLHttpRequest();
-		var urlCatalog = "http://192.168.43.33:3000/api/augmentations/?url=" + myUrl;
+		var urlCatalog = "http://192.168.43.44:3000/api/augmentations/?url=" + myUrl;
 		getReqCatalog.open("GET", urlCatalog, false);
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
 		getReqCatalog.send();
@@ -142,7 +142,7 @@
 	            siteImport+= '';
 				var options = siteImport.split(","); // o siteImport
 			    getReqCatalog = new XMLHttpRequest();
-			    urlCatalog = "http://192.168.43.33:3000/api/augmentations/" + options[options.length - 1];
+			    urlCatalog = "http://192.168.43.44:3000/api/augmentations/" + options[options.length - 1];
 			    getReqCatalog.open("GET", urlCatalog, false);
 			    getReqCatalog.setRequestHeader("Content-Type", "application/json");
 			    getReqCatalog.send();
@@ -350,7 +350,7 @@
 				"}</style>");
 				iHead.append("<style> #view-source {position: fixed; display: block; right: 0; bottom: 0; margin-right: 40px; margin-bottom: 40px; z-index: 900; } </style>");
 				iBody.append("<div class='mdl-layout mdl-js-layout mdl-layout--fixed-header'><div class='android-header mdl-layout__header mdl-layout__header--waterfall is-casting-shadow is-compact'>"+
-                "<div aria-expanded='false' role='button' tabindex='0' class='mdl-layout__drawer-button' id='drwrbtn'><i class='material-icons' style='font-size: 48px; margin-top: -25px'>≡</i></div> <div class='mdl-layout__header-row'>"+
+                "<div aria-expanded='false' role='button' tabindex='0' class='mdl-layout__drawer-button' id='drwrbtn'><i class='material-icons' style='font-size: 48px; margin-top: -25px'> ≡ </i></div> <div class='mdl-layout__header-row'>"+
 				"<span class='android-title mdl-layout-title'><div id='header-0' style='color: #8bc34a;'></div></span><div class='android-header-spacer mdl-layout-spacer'></div>"+
 				"<div class='android-navigation-container'><nav class='android-navigation mdl-navigation' id='navigation-0'></nav></div>"+
 				"<span class='android-mobile-title mdl-layout-title'><div id='header-1'></div></span></div></div>"+
