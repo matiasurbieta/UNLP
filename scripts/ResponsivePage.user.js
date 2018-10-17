@@ -131,6 +131,7 @@
 		getReqCatalog.send();
 		if (getReqCatalog.status == 200 || getReqCatalog.status == 400){
 			var xhrResponse = getReqCatalog.responseText;
+			console.log(xhrResponse);
 		}
 		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
 		var siteImport = JSON.parse(xhrResponse);
