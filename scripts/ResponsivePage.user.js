@@ -19,9 +19,9 @@
 		$('head script[src*="jquery"]').remove();
 	}
 
-	GM_registerMenuCommand('Importar configuración desde catálogo', importJson);
+	GM_registerMenuCommand('Importar configuracion desde catalogo', importJson);
 	GM_registerMenuCommand('Eliminar datos almacenados', delLocalSite, "L");
-	GM_registerMenuCommand('Almacenar páginas candidatas en sessionStorage', saveCandidates);
+	GM_registerMenuCommand('Almacenar paginas candidatas en sessionStorage', saveCandidates);
 
 
 	var siteAdaptation = [];
