@@ -84,6 +84,7 @@
 	 //Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio
 	//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
 	function saveCandidates(){
+		alert('Se almacenaran las páginas candidatas en sessionStorage');
 		var aTag = document.getElementsByTagName("a");
 		var i, j=0;
 	    var substring = "#";
