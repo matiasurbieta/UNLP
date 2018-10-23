@@ -26,6 +26,7 @@ GM_registerMenuCommand('Importar configuración', importJson, "I");
 GM_registerMenuCommand('Exportar configuración', exportJson, "X");
 GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "Q");
 GM_registerMenuCommand('Importar configuración del Catálogo', importJsonFromCatalog, "W");
+GM_registerMenuCommand('Almacenar paginas candidatas en sessionStorage', saveCandidates);
 
 //-----------------------------------------------------------
 // VARIABLES GLOBALES
@@ -111,6 +112,80 @@ function initializeEdition() {
 			actualizarIFrame();
 		}
 	});
+
+	checkStatus();
+}
+
+//Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
+function checkStatus(){
+	$("html").on('click', 'a', function(e) {
+		if(navigator.onLine){
+			console.log("Hay conexión estable: se acepta el click.");
+  		}
+		else{
+			e.stopImmediatePropagation(); //Intercepto la acción del click
+			e.preventDefault();
+			if (confirm("Error de conexión: desea continuar la navegación?")) {
+				if(sessionStorage[this.href]){
+					//e.preventDefault();
+					document.querySelector('html').innerHTML = sessionStorage[this.href]; // Reemplazo el html acutal por el correspondiente a href.
+				}
+				else{
+					//e.preventDefault();
+					alert("La página a la que desea acceder no se encuentra almacenada en el sessionStorage.");
+				}
+			}
+			else{
+				alert("Permanecerá en la misma página.");
+			}
+		}
+	});
+
+	$("html").on('submit', 'form', function(e) {
+		if(navigator.onLine){
+			//console.log("Hay conexión estable: se genera el submit.");
+		}
+		else{
+			alert("Submit interceptado: No hay conexión a internet.");
+			e.preventDefault();
+		}
+	});
+}
+
+//Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
+//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
+function saveCandidates(){
+	if (confirm('Se almacenaran las páginas candidatas en sessionStorage. Este proceso puede demorar un minuto.')){
+		var aTag = document.getElementsByTagName("a");
+		var i, j=0;
+	    var substring = "#";
+	    var host = location.hostname; // Obtengo el hostname correspondiente al sitio actual.
+		var url = [];
+		var max = aTag.length; // Determino la cantidad de elementos <a> del sitio (fuera del for para no calcularlo más de una vez).
+		for (i=0; i < max; i++){
+			url.push(aTag[i].href); // Almaceno el contenido de href de cada una de las <a> de la página actual en url[i].
+			// Si la url no es vacía, no se corresponde con un enlace interno (contienen '#') y pertenece el dominio actual (host).
+			if ((url[i]!=="") && !(url[i].includes(substring)) && (url[i].includes(host))){
+				var $urlAux = url [i];
+				j++;
+				// AJAX request de tipo GET, que almacena en sessionStorage el html completo de $urlAux.
+				$.ajax({
+				        'async': false, // Sincrónicamente, de manera que se detenga la navegación hasta almacenar los datos (y que los mismos puedan utilizarse fuera de la request).
+				        'type': "GET",
+				        'url': $urlAux,
+				        'success': function (data) {
+				            sessionStorage[$urlAux] = data;
+				            console.log(j + ': ' + $urlAux + ' almacenado en sessionStorage.');
+				        }
+				});
+			}
+		}
+		//Guardo la página actual
+		j++;
+		sessionStorage[location.href] = document.querySelector('html');
+		console.log(j + ' (página actual) : ' + location.href + ' almacenado en sessionStorage.');
+		alert('Se almacenaron ' + j + ' páginas en el sessionStorage.')
+	}
 }
 
 // Funcion que arma la tabla con los elementos cargados en el JSON
@@ -1409,6 +1484,7 @@ function initialize() {
 			createPreviewIFrame();
 		}
 	}
+	checkStatus();
 }
 
 // Funcion para obtener la cantidad elementos adaptados
