@@ -26,6 +26,8 @@ GM_registerMenuCommand('Importar configuración', importJson, "I");
 GM_registerMenuCommand('Exportar configuración', exportJson, "X");
 GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "Q");
 GM_registerMenuCommand('Importar configuración del Catálogo', importJsonFromCatalog, "W");
+GM_registerMenuCommand('Configurar URL del Catálogo', setCatalogUrl, "U");
+GM_registerMenuCommand('Borrar URL del Catálogo', deleteCatalogUrl, "D");
 GM_registerMenuCommand('Almacenar paginas candidatas en sessionStorage', saveCandidates);
 
 //-----------------------------------------------------------
@@ -82,7 +84,7 @@ var selectedPattern;	 											// almacena el identificador del patron selecci
 var urlCompareType = "equal";
 var pageUrl = window.location.href;
 var siteAdaptation = [];											// almacena todas las transformaciones realizadas.
-
+var catalogBaseUrl = "";
 
 //-----------------------------------------------------------
 // INICIALIZACION DEL SISTEMA
@@ -427,14 +429,23 @@ function closeModal(elementToRemove){
 	activateButton();
 }
 
+//Función para setear la URL del catálogo
+function setCatalogUrl(){
+    catalogBaseUrl = prompt("Ingrese la dirección del catálogo. Omita 'http://www.' y también el puerto. Por ejemplo, si el catálogo corre en localhost se ingresa 'localhost'");
+}
+
+function deleteCatalogUrl(){
+    catalogBaseUrl = "";
+}
 // Funcion para exportar el json con las adaptaciones al catálogo
 function exportJsonToCatalog() {
-	if (countSeletedElements() == 0) {
+    if (catalogBaseUrl != ""){
+        if (countSeletedElements() == 0) {
 		alert("No hay elementos seleccionados para exportar.");
 	}
 	else {
 		var postReqCatalog = new XMLHttpRequest();
-		var urlCatalog = "http://localhost:3000/api/augmentations/";
+		var urlCatalog = "http://" + catalogBaseUrl + ":3000/api/augmentations";
 		postReqCatalog.open("POST", urlCatalog, false);
 		postReqCatalog.setRequestHeader("Content-Type", "application/json");
 		var data = JSON.stringify(siteAdaptation);
@@ -444,6 +455,10 @@ function exportJsonToCatalog() {
 			alert("Respuesta del catálogo: " + postReqCatalog.responseText);
 		}
 	}
+    }
+    else{
+        alert("Por favor configure la URL del catálogo a través del menú");
+    }
 }
 
 //Función para evaluar si un string contiene números
@@ -462,7 +477,7 @@ function optionsAvailable(response){
                 alert("Se cargará la transformación con ID " + userChoice);
                 var pageUrl = window.location.href;
                 var dataReq = new XMLHttpRequest();
-                var catalogUrl = "http://localhost:3000/api/augmentations/" + userChoice;
+                var catalogUrl = "http://" + catalogBaseUrl + ":3000/api/augmentations/" + userChoice;
                 dataReq.open("GET", catalogUrl, false);
                 dataReq.setRequestHeader("Content-Type", "application/json");
                 dataReq.send();
@@ -491,9 +506,10 @@ function optionsAvailable(response){
 
 //Función que permite traer una adaptación del catálogo
 function importJsonFromCatalog(){
-	var myUrl = window.location.href;
+    if (catalogBaseUrl != ""){
+        var myUrl = window.location.href;
 	var getReqCatalog = new XMLHttpRequest();
-	var urlCatalog = "http://localhost:3000/api/augmentations/?url=" + myUrl;
+	var urlCatalog = "http://" + catalogBaseUrl + ":3000/api/augmentations/?url=" + myUrl;
 		getReqCatalog.open("GET", urlCatalog, false);
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
     getReqCatalog.send();
@@ -521,6 +537,10 @@ function importJsonFromCatalog(){
                 actualizarIFrame();
             }
         }
+    }
+    }
+	else{
+        alert("Por favor configure la URL del catálogo a través del menú");
     }
 }
 
