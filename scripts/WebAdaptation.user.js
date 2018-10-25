@@ -115,14 +115,22 @@ function initializeEdition() {
 		}
 	});
 
+	if (confirm("Desea almacenar las páginas candidatas en el sessionStorage?")) {
+		saveCandidates();
+	}
+	else{
+		alert("No se almacenarán las páginas candidatas.");
+	}
 	checkStatus();
 }
 
 //Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
 function checkStatus(){
+
 	$("html").on('click', 'a', function(e) {
 		if(navigator.onLine){
-			console.log("Hay conexión estable: se acepta el click.");
+			//console.log("Hay conexión estable: se acepta el click.");
+
   		}
 		else{
 			e.stopImmediatePropagation(); //Intercepto la acción del click
@@ -157,6 +165,7 @@ function checkStatus(){
 //Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
 //en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
 function saveCandidates(){
+
 	if (confirm('Se almacenaran las páginas candidatas en sessionStorage. Este proceso puede demorar un minuto.')){
 		var aTag = document.getElementsByTagName("a");
 		var i, j=0;
