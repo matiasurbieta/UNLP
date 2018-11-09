@@ -46,6 +46,75 @@
 				}
 			}
 		}
+		checkStatus();
+	}
+
+	 //Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
+	function checkStatus(){
+	 	$("html").on('click', 'a', function(e) {
+			if(navigator.onLine){
+				//console.log("Hay conexión estable: se acepta el click.");
+	  		}
+			else{
+				e.stopImmediatePropagation(); //Intercepto la acción del click
+				e.preventDefault();
+				if (confirm("Error de conexión: desea continuar la navegación?")) {
+					if(sessionStorage[this.href]){
+						//e.preventDefault();
+						document.querySelector('html').innerHTML = sessionStorage[this.href]; // Reemplazo el html acutal por el correspondiente a href.
+					}
+					else{
+						//e.preventDefault();
+						alert("La página a la que desea acceder no se encuentra almacenada en el sessionStorage.");
+					}
+				}
+				else{
+					alert("Permanecerá en la misma página.");
+				}
+			}
+		});
+	 	$("html").on('submit', 'form', function(e) {
+			if(navigator.onLine){
+				//console.log("Hay conexión estable: se genera el submit.");
+			}
+			else{
+				alert("Submit interceptado: No hay conexión a internet.");
+				e.preventDefault();
+			}
+		});
+	}
+	 //Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio
+	//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
+	function saveCandidates(){
+		var aTag = document.getElementsByTagName("a");
+		var i, j=0;
+	    var substring = "#";
+	    var host = location.hostname; // Obtengo el hostname correspondiente al sitio actual.
+		var url = [];
+		var max = aTag.length; // Determino la cantidad de elementos <a> del sitio (fuera del for para no calcularlo más de una vez).
+		for (i=0; i < max; i++){
+			url.push(aTag[i].href); // Almaceno el contenido de href de cada una de las <a> de la página actual en url[i].
+			// Si la url no es vacía, no se corresponde con un enlace interno (contienen '#') y pertenece el dominio actual (host).
+			if ((url[i]!=="") && !(url[i].includes(substring)) && (url[i].includes(host))){
+				var $urlAux = url [i];
+				j++;
+				// AJAX request de tipo GET, que almacena en sessionStorage el html completo de $urlAux.
+				$.ajax({
+				        'async': false, // Sincrónicamente, de manera que se detenga la navegación hasta almacenar los datos (y que los mismos puedan utilizarse fuera de la request).
+				        'type': "GET",
+				        'url': $urlAux,
+				        'success': function (data) {
+				            sessionStorage[$urlAux] = data;
+				            console.log(j + ': ' + $urlAux + ' almacenado en sessionStorage.');
+				        }
+				});
+			}
+		}
+		//Guardo la página actual
+		j++;
+		sessionStorage[location.href] = document.querySelector('html');
+		console.log(j + ' (página actual) : ' + location.href + ' almacenado en sessionStorage.');
+		alert('Se almacenaron ' + j + ' páginas en el sessionStorage.')
 	}
 
 	//Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
@@ -121,28 +190,61 @@
 	}
 
 	function importJson() {
-		var dataImport = prompt("Importar la configuración. Ingrese el JSON correspondiente");
-		/* La longitud debe tener un minimo de datos para asegurar la estructura inicial del Json. */
-		if(dataImport.length >= 50 ){
-			var siteImport = JSON.parse(dataImport);
-			if($.isArray(siteImport)) {
-				saveLocalSite(siteImport);
-				siteAdaptation = siteImport;
-				var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
-				if (index < 0) {
-					index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
-				}
-				if (index > -1) {
-					executePageAdaptation(index);
-				}
-				alert("Se ha importado correctamente la configuración.");
-			}
-			else {
-				alert("Los datos ingresados no tienen un formato válido.");
-			}
-		} else {
-			alert("Los datos ingresados no tienen un formato válido.");
-		}	
+		var myUrl = window.location.href;
+        window.fetch("http://localhost:3000/api/augmentations/?url=" + myUrl)
+		.then(function(response) {
+            response.json().then(function(data) {
+                // data es el resultado
+                console.log(data);
+                console.log(JSON.stringify(data));
+                if (data.includes("No hay transformaciones") || data.includes("URL necesaria")){
+                    alert(JSON.stringify(data));
+                }else{
+                	if (/\d/.test(data)){
+                		var options = JSON.stringify(data).split(",");
+                		window.fetch("http://localhost:3000/api/augmentations/" + options[options.length - 1])
+                		.then(function(response){
+                			response.json().then(function(data){
+                				if(Array.isArray(data)) {
+                				    saveLocalSite(data);
+                				    siteAdaptation = data;
+                				    var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
+                				    if (index < 0) {
+                				        index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
+                				    }
+                				    if (index > -1) {
+                				        executePageAdaptation(index);
+                				    }
+                				    alert("Se ha importado correctamente la configuración.");
+                				}else {
+                				    alert("Los datos ingresados no tienen un formato válido.");
+                				}
+                			});
+                		}).catch(function(err){
+                			alert("Algo salió mal: " + err);
+                		});
+                	}else{
+                		if(Array.isArray(data)) {
+                		    saveLocalSite(data);
+                		    siteAdaptation = data;
+                		    var index = indexOfCompareByEquals(siteAdaptation, pageUrl, "url");
+                		    if (index < 0) {
+                		        index = indexOfCompareByIncludes(siteAdaptation, pageUrl, "url");
+                		    }
+                		    if (index > -1) {
+                		        executePageAdaptation(index);
+                		    }
+                		    alert("Se ha importado correctamente la configuración.");
+                		}else {
+                		    alert("Los datos ingresados no tienen un formato válido.");
+                		}
+                	}
+                }
+
+            });
+		}).catch(function(err) {
+			alert("Algo salió mal: " + err);
+		});
 	}
 
 	function importJsonCat() {

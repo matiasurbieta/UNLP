@@ -26,6 +26,8 @@ GM_registerMenuCommand('Importar configuración', importJson, "I");
 GM_registerMenuCommand('Exportar configuración', exportJson, "X");
 GM_registerMenuCommand('Exportar configuración al Catálogo', exportJsonToCatalog, "Q");
 GM_registerMenuCommand('Importar configuración del Catálogo', importJsonFromCatalog, "W");
+GM_registerMenuCommand('Configurar URL del Catálogo', setCatalogUrl, "U");
+GM_registerMenuCommand('Borrar URL del Catálogo', deleteCatalogUrl, "D");
 GM_registerMenuCommand('Almacenar paginas candidatas en sessionStorage', saveCandidates);
 
 //-----------------------------------------------------------
@@ -82,7 +84,7 @@ var selectedPattern;	 											// almacena el identificador del patron selecci
 var urlCompareType = "equal";
 var pageUrl = window.location.href;
 var siteAdaptation = [];											// almacena todas las transformaciones realizadas.
-
+var catalogBaseUrl = "";
 
 //-----------------------------------------------------------
 // INICIALIZACION DEL SISTEMA
@@ -113,6 +115,89 @@ function initializeEdition() {
 			actualizarIFrame();
 		}
 	});
+
+	if (confirm("Desea almacenar las páginas candidatas en el sessionStorage?")) {
+		saveCandidates();
+	}
+	else{
+		alert("No se almacenarán las páginas candidatas.");
+	}
+	checkStatus();
+}
+
+//Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
+function checkStatus(){
+
+	$("html").on('click', 'a', function(e) {
+		if(navigator.onLine){
+			//console.log("Hay conexión estable: se acepta el click.");
+
+  		}
+		else{
+			e.stopImmediatePropagation(); //Intercepto la acción del click
+			e.preventDefault();
+			if (confirm("Error de conexión: desea continuar la navegación?")) {
+				if(sessionStorage[this.href]){
+					//e.preventDefault();
+					document.querySelector('html').innerHTML = sessionStorage[this.href]; // Reemplazo el html acutal por el correspondiente a href.
+				}
+				else{
+					//e.preventDefault();
+					alert("La página a la que desea acceder no se encuentra almacenada en el sessionStorage.");
+				}
+			}
+			else{
+				alert("Permanecerá en la misma página.");
+			}
+		}
+	});
+
+	$("html").on('submit', 'form', function(e) {
+		if(navigator.onLine){
+			//console.log("Hay conexión estable: se genera el submit.");
+		}
+		else{
+			alert("Submit interceptado: No hay conexión a internet.");
+			e.preventDefault();
+		}
+	});
+}
+
+//Función que permite almacenar en sessionStorage todas las páginas candidato cacheables, filtrando las que pertenecen al dominio 
+//en el que estoy y que no son enlaces internos. Luego, almacena también la página actual.
+function saveCandidates(){
+
+	if (confirm('Se almacenaran las páginas candidatas en sessionStorage. Este proceso puede demorar un minuto.')){
+		var aTag = document.getElementsByTagName("a");
+		var i, j=0;
+	    var substring = "#";
+	    var host = location.hostname; // Obtengo el hostname correspondiente al sitio actual.
+		var url = [];
+		var max = aTag.length; // Determino la cantidad de elementos <a> del sitio (fuera del for para no calcularlo más de una vez).
+		for (i=0; i < max; i++){
+			url.push(aTag[i].href); // Almaceno el contenido de href de cada una de las <a> de la página actual en url[i].
+			// Si la url no es vacía, no se corresponde con un enlace interno (contienen '#') y pertenece el dominio actual (host).
+			if ((url[i]!=="") && !(url[i].includes(substring)) && (url[i].includes(host))){
+				var $urlAux = url [i];
+				j++;
+				// AJAX request de tipo GET, que almacena en sessionStorage el html completo de $urlAux.
+				$.ajax({
+				        'async': false, // Sincrónicamente, de manera que se detenga la navegación hasta almacenar los datos (y que los mismos puedan utilizarse fuera de la request).
+				        'type': "GET",
+				        'url': $urlAux,
+				        'success': function (data) {
+				            sessionStorage[$urlAux] = data;
+				            console.log(j + ': ' + $urlAux + ' almacenado en sessionStorage.');
+				        }
+				});
+			}
+		}
+		//Guardo la página actual
+		j++;
+		sessionStorage[location.href] = document.querySelector('html');
+		console.log(j + ' (página actual) : ' + location.href + ' almacenado en sessionStorage.');
+		alert('Se almacenaron ' + j + ' páginas en el sessionStorage.')
+	}
 }
 
 //Función que comprueba en cada click si la conexión es estable y adapta el comportamiento según el caso.
@@ -420,14 +505,26 @@ function closeModal(elementToRemove){
 	activateButton();
 }
 
+
+//Función para setear la URL del catálogo
+function setCatalogUrl(){
+    catalogBaseUrl = prompt("Ingrese la dirección del catálogo. Omita 'http://www.' y también el puerto. Por ejemplo, si el catálogo corre en localhost se ingresa 'localhost'");
+}
+
+function deleteCatalogUrl(){
+    catalogBaseUrl = "";
+}
 // Funcion para exportar el json con las adaptaciones al catálogo
 function exportJsonToCatalog() {
-	if (countSeletedElements() == 0) {
+    if (catalogBaseUrl != ""){
+        if (countSeletedElements() == 0) {
 		alert("No hay elementos seleccionados para exportar.");
 	}
 	else {
 		var postReqCatalog = new XMLHttpRequest();
-		var urlCatalog = "http://localhost:3000/api/augmentations/";
+
+		var urlCatalog = "http://" + catalogBaseUrl + ":3000/api/augmentations";
+
 		postReqCatalog.open("POST", urlCatalog, false);
 		postReqCatalog.setRequestHeader("Content-Type", "application/json");
 		var data = JSON.stringify(siteAdaptation);
@@ -437,6 +534,12 @@ function exportJsonToCatalog() {
 			alert("Respuesta del catálogo: " + postReqCatalog.responseText);
 		}
 	}
+
+    }
+    else{
+        alert("Por favor configure la URL del catálogo a través del menú");
+    }
+
 }
 
 //Función para evaluar si un string contiene números
@@ -455,7 +558,9 @@ function optionsAvailable(response){
                 alert("Se cargará la transformación con ID " + userChoice);
                 var pageUrl = window.location.href;
                 var dataReq = new XMLHttpRequest();
-                var catalogUrl = "http://localhost:3000/api/augmentations/" + userChoice;
+
+                var catalogUrl = "http://" + catalogBaseUrl + ":3000/api/augmentations/" + userChoice;
+
                 dataReq.open("GET", catalogUrl, false);
                 dataReq.setRequestHeader("Content-Type", "application/json");
                 dataReq.send();
@@ -484,9 +589,12 @@ function optionsAvailable(response){
 
 //Función que permite traer una adaptación del catálogo
 function importJsonFromCatalog(){
-	var myUrl = window.location.href;
+
+    if (catalogBaseUrl != ""){
+        var myUrl = window.location.href;
 	var getReqCatalog = new XMLHttpRequest();
-	var urlCatalog = "http://localhost:3000/api/augmentations/?url=" + myUrl;
+	var urlCatalog = "http://" + catalogBaseUrl + ":3000/api/augmentations/?url=" + myUrl;
+
 		getReqCatalog.open("GET", urlCatalog, false);
 		getReqCatalog.setRequestHeader("Content-Type", "application/json");
     getReqCatalog.send();
@@ -515,6 +623,12 @@ function importJsonFromCatalog(){
             }
         }
     }
+
+    }
+	else{
+        alert("Por favor configure la URL del catálogo a través del menú");
+    }
+
 }
 
 // Funcion que se encarga de abrir el div modal y su fondo. Recibe un parametro que sera el elemento a resaltar. (Ubicar elemento seleccionado)
@@ -1478,6 +1592,7 @@ function initialize() {
 			createPreviewIFrame();
 		}
 	}
+	checkStatus();
 }
 
 // Funcion para obtener la cantidad elementos adaptados
